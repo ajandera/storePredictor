@@ -1,6 +1,8 @@
 # storePredictor
 
-Predictive analytics tool which is able to 
+![alt text](https://github.com/ajandera/storePredictor/blob/main/frontend/static/sp_logo.svg?raw=true)
+
+Predictive analytics open source platform.
 
 ## Table of Contents
 
