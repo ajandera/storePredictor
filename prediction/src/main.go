@@ -14,13 +14,13 @@ import (
 	"syscall"
 	"time"
 
+	model "github.com/ajandera/sp_model"
+	"github.com/ajandera/sp_model/rdbsClientData"
+	"github.com/ajandera/sp_model/rdbsClientInfo"
 	"github.com/gonum/matrix/mat64"
 	"github.com/montanaflynn/stats"
 	_ "github.com/streadway/amqp"
 	"github.com/wagslane/go-rabbitmq"
-	model "gitlab.eaineu.com/storepredictor/model"
-	"gitlab.eaineu.com/storepredictor/model/rdbsClientData"
-	"gitlab.eaineu.com/storepredictor/model/rdbsClientInfo"
 )
 
 const cbhmmLevel = 3

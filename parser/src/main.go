@@ -10,11 +10,11 @@ import (
 	"strings"
 	"syscall"
 
+	model "github.com/ajandera/sp_model"
+	"github.com/ajandera/sp_model/rdbsClientInfo"
 	"github.com/gocolly/colly/v2"
 	_ "github.com/streadway/amqp"
 	"github.com/wagslane/go-rabbitmq"
-	"gitlab.eaineu.com/storepredictor/model"
-	"gitlab.eaineu.com/storepredictor/model/rdbsClientInfo"
 )
 
 const consumerName = "parser"

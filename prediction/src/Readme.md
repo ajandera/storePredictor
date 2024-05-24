@@ -12,14 +12,6 @@ Connection to producer and predict the stores, than save to data to influx.
 
 - run docker-compose up
 
-- create ~/.netrc with content
-
-machine machine gitlab.eaineu.com
-login ales@storepredictor.com
-password glpat-K7tZ-sq9Zxk9Due9d142
-
-- set env GOPRIVATE=gitlab.eaineu.com/storepredictor
-
 ## Documentation
 
 Run command from src folder

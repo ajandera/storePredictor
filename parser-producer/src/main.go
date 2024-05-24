@@ -4,11 +4,11 @@ import (
 	"log"
 	"os"
 
+	model "github.com/ajandera/sp_model"
+	"github.com/ajandera/sp_model/rdbsClientInfo"
 	"github.com/bitly/go-simplejson"
 	_ "github.com/streadway/amqp"
 	"github.com/wagslane/go-rabbitmq"
-	"gitlab.eaineu.com/storepredictor/model"
-	"gitlab.eaineu.com/storepredictor/model/rdbsClientInfo"
 )
 
 var stores []rdbsClientInfo.Stores
@@ -18,23 +18,20 @@ func produce(m model.Repository, publisher *rabbitmq.Publisher) {
 	// get all accounts
 	accounts := m.GetAccounts()
 	for _, account := range accounts {
-		plan := m.GetPlanById(account.PlanRefer)
-		if plan.Enabled == true {
-			stores = m.GetStoresByAccount(account.Id.String())
-			for _, store := range stores {
-				log.Println("Open data parser for store id: " + store.Id.String())
-				message := simplejson.New()
-				message.Set("storeId", store.Id)
-				res, _ := message.MarshalJSON()
-				err := publisher.Publish(
-					res,
-					[]string{"parser"},
-					rabbitmq.WithPublishOptionsContentType("application/json"),
-				)
-				if err != nil {
-					log.Printf(err.Error())
-					return
-				}
+		stores = m.GetStoresByAccount(account.Id.String())
+		for _, store := range stores {
+			log.Println("Open data parser for store id: " + store.Id.String())
+			message := simplejson.New()
+			message.Set("storeId", store.Id)
+			res, _ := message.MarshalJSON()
+			err := publisher.Publish(
+				res,
+				[]string{"parser"},
+				rabbitmq.WithPublishOptionsContentType("application/json"),
+			)
+			if err != nil {
+				log.Printf(err.Error())
+				return
 			}
 		}
 	}
