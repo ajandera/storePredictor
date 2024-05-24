@@ -1,0 +1,162 @@
+version: "3"
+services:
+  clients-data:
+    image: postgres:13
+    environment:
+      - POSTGRES_PASSWORD=demo
+      - POSTGRES_USER=demo
+      - POSTGRES_DB=clients
+      - POSTGRES_EXTENSIONS=uuid-ossp
+    volumes:
+      - "clients-data:/var/lib/postgresql/data"
+  clients-information-data:
+    image: postgres:13
+    environment:
+      - POSTGRES_PASSWORD=demo
+      - POSTGRES_USER=demo
+      - POSTGRES_DB=information-data
+      - POSTGRES_EXTENSIONS=uuid-ossp
+    volumes:
+      - "information-data:/var/lib/postgresql/data"
+  api:
+    build: ./api
+    entrypoint: [ "sh", "/api/entrypoint.sh" ]
+    environment:
+      - CLIENTS_DATA_HOST=clients-data
+      - CLIENTS_DATA_USER=demo
+      - CLIENTS_DATA_PASSWORD=demo
+      - CLIENTS_DATA_DATABASE=clients
+      - CLIENTS_DATA_PORT=5432
+      - CLIENTS_INFORMATION_HOST=clients-information-data
+      - CLIENTS_INFORMATION_USER=demo
+      - CLIENTS_INFORMATION_PASSWORD=demo
+      - CLIENTS_INFORMATION_DATABASE=information-data
+      - CLIENTS_INFORMATION_PORT=5432
+      - API_DOC=true
+    volumes: 
+      - "../api/src:/application"
+    ports:
+      - "9999:8888"
+  adminer:
+    image: adminer
+    ports:
+      - 5050:8080
+  graph-database:
+    image: influxdb:2.0-alpine
+    environment:
+      - DOCKER_INFLUXDB_INIT_USERNAME=demo
+      - DOCKER_INFLUXDB_INIT_PASSWORD=demodemo
+      - DOCKER_INFLUXDB_INIT_ORG=store_predictor
+      - DOCKER_INFLUXDB_INIT_BUCKET=data
+      - USERNAME=demo
+      - PASSWORD=demodemo
+      - BUCKET=data
+      - ORGANIZATION=store_predictor
+    volumes:
+      - "graph-data:/var/lib/influxdb2"
+      - "graph-config:/etc/influxdb2"
+  rabbit:
+    container_name: sp_rabbit
+    image: "rabbitmq:3-management"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "sD9pMgCTnv8STh2y"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "15681:15672"
+      - "5681:5672"
+    labels:
+      NAME: "rabbitmq1"
+    volumes:
+      - "./docker/rabbitmq:/var/lib/rabbitmq:rw"
+      #- "./docker/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro"
+      #- "./docker/enabled_plugins:/etc/rabbitmq/enabled_plugins"
+      #- "./autocluster-0.4.1.ez:/usr/lib/rabbitmq/lib/rabbitmq_server-3.5.5/plugins/autocluster-0.4.1.ez"
+  prediction-producer:
+    build: ./prediction-producer
+    entrypoint: [ "sh", "/prediction-producer/entrypoint.sh" ]
+    environment:
+      - CLIENTS_DATA_HOST=clients-data
+      - CLIENTS_DATA_USER=demo
+      - CLIENTS_DATA_PASSWORD=demo
+      - CLIENTS_DATA_DATABASE=clients
+      - CLIENTS_DATA_PORT=5432
+      - CLIENTS_INFORMATION_HOST=clients-information-data
+      - CLIENTS_INFORMATION_USER=demo
+      - CLIENTS_INFORMATION_PASSWORD=demo
+      - CLIENTS_INFORMATION_DATABASE=information-data
+      - CLIENTS_INFORMATION_PORT=5432
+      - INFLUX_TOKEN=V0A3uH9ldfPyWffgbUJAjZ24t5osqozadz5e4tW3LD_a1oIEMjJE6pokArEfg8Wvt7FhjlLWPjWJPmLUaUJRnQ==
+      - INFLUX_HOST=http://graph-database:8086
+      - INFLUX_ORGANIZATION=store_predictor
+      - RABBIT_HOST=rabbit
+      - RABBIT_USER=guest
+      - RABBIT_PASS=sD9pMgCTnv8STh2y
+    volumes: 
+      - "../prediction-producer/src:/application"
+  prediction-model:
+    build: ./prediction
+    entrypoint: [ "sh", "/prediction/entrypoint.sh" ]
+    environment:
+      - CLIENTS_DATA_HOST=clients-data
+      - CLIENTS_DATA_USER=demo
+      - CLIENTS_DATA_PASSWORD=demo
+      - CLIENTS_DATA_DATABASE=clients
+      - CLIENTS_DATA_PORT=5432
+      - CLIENTS_INFORMATION_HOST=clients-information-data
+      - CLIENTS_INFORMATION_USER=demo
+      - CLIENTS_INFORMATION_PASSWORD=demo
+      - CLIENTS_INFORMATION_DATABASE=information-data
+      - CLIENTS_INFORMATION_PORT=5432
+      - INFLUX_TOKEN=V0A3uH9ldfPyWffgbUJAjZ24t5osqozadz5e4tW3LD_a1oIEMjJE6pokArEfg8Wvt7FhjlLWPjWJPmLUaUJRnQ==
+      - INFLUX_HOST=http://graph-database:8086
+      - INFLUX_ORGANIZATION=store_predictor
+      - RABBIT_HOST=rabbit
+      - RABBIT_USER=guest
+      - RABBIT_PASS=sD9pMgCTnv8STh2y
+    volumes: 
+      - "../prediction/src:/application"
+  parser-producer:
+    build: ./parser-producer
+    entrypoint: [ "sh", "/entrypoint.sh" ]
+    environment:
+      - CLIENTS_DATA_HOST=clients-data
+      - CLIENTS_DATA_USER=demo
+      - CLIENTS_DATA_PASSWORD=demo
+      - CLIENTS_DATA_DATABASE=clients
+      - CLIENTS_DATA_PORT=5432
+      - CLIENTS_INFORMATION_HOST=clients-information-data
+      - CLIENTS_INFORMATION_USER=demo
+      - CLIENTS_INFORMATION_PASSWORD=demo
+      - CLIENTS_INFORMATION_DATABASE=information-data
+      - CLIENTS_INFORMATION_PORT=5432
+      - RABBIT_HOST=rabbit
+      - RABBIT_USER=guest
+      - RABBIT_PASS=sD9pMgCTnv8STh2y
+    volumes: 
+      - "../parser-producer/src:/application"
+  parser:
+    build: ./parser
+    entrypoint: [ "sh", "/parser/entrypoint.sh" ]
+    environment:
+      - CLIENTS_DATA_HOST=clients-data
+      - CLIENTS_DATA_USER=demo
+      - CLIENTS_DATA_PASSWORD=demo
+      - CLIENTS_DATA_DATABASE=clients
+      - CLIENTS_DATA_PORT=5432
+      - CLIENTS_INFORMATION_HOST=clients-information-data
+      - CLIENTS_INFORMATION_USER=demo
+      - CLIENTS_INFORMATION_PASSWORD=demo
+      - CLIENTS_INFORMATION_DATABASE=information-data
+      - CLIENTS_INFORMATION_PORT=5432
+      - RABBIT_HOST=rabbit
+      - RABBIT_USER=guest
+      - RABBIT_PASS=sD9pMgCTnv8STh2y
+    volumes: 
+      - "../parser/src:/application"
+volumes:
+  clients-data:
+  information-data:
+  graph-data:
+  graph-config:

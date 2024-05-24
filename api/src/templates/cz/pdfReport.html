@@ -1,0 +1,26 @@
+<html>
+<head>
+    <title>storePredictor report</title>
+<head>
+<body>
+    <h1>storePredictor pdf report</h1>
+    <table>
+        <tr>
+            <th>Jméno</th>
+            <th>Očekávaný prodej</th>
+            <th>Datum kdy objednat</th>
+            <th>Datum kdy buzde potřeba</th>
+            <th>Množství</th>
+        </tr>
+        {{range $row := .}}
+        <tr>
+            <td>{{$row.Name}}</td>
+            <td>{{$row.Expected}}</td>
+            <td>{{$row.DateToOrder}}</td>
+            <td>{{$row.DateToNeed}}</td>
+            <td>{{$row.Quantity}}</td>
+        </tr>
+        {{end}}
+    </table>
+</body>
+<html>

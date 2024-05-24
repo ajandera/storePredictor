@@ -1,0 +1,1230 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Private REST API to for user interface application",
+        "title": "storePredictor private REST API",
+        "contact": {
+            "name": "Ales Jandera",
+            "url": "http://storepredictor.com",
+            "email": "ales@storepredictor.com"
+        },
+        "license": {
+            "name": "Commercial"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:9996",
+    "basePath": "/",
+    "paths": {
+        "/account/email/{email}": {
+            "get": {
+                "description": "Endpoint to get account by email",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Endpoint to get account by email",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/structs.Account"
+                        }
+                    }
+                }
+            }
+        },
+        "/account/me": {
+            "get": {
+                "description": "Endpoint to send logged user account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Endpoint to send logged user account",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/structs.Account"
+                        }
+                    }
+                }
+            }
+        },
+        "/account/order/{accountId}/{storeId}": {
+            "get": {
+                "description": "Endpoint to get account orders",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Endpoint to get account orders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Endpoint to store Order data from account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Endpoint to store Order data from account",
+                "parameters": [
+                    {
+                        "description": "Order object to store in database",
+                        "name": "o.Order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Order"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts": {
+            "get": {
+                "description": "Endpoint to send all accounts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Endpoint to send all accounts",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Account"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Endpoint to update account data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Endpoint to store account data",
+                "parameters": [
+                    {
+                        "description": "Account object to update in database",
+                        "name": "a.Account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/structs.Account"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts/{accountId}": {
+            "delete": {
+                "description": "Endpoint to delete account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Endpoint to delete account",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts/{lang}": {
+            "post": {
+                "description": "Endpoint to StoreWeights data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StoreWeights"
+                ],
+                "summary": "Endpoint to store StoreWeights data",
+                "parameters": [
+                    {
+                        "description": "StoreWeights object to store in database",
+                        "name": "sw.StoreWeights",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/structs.StoreWeights"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/orders/{from}/{to}/{storeId}": {
+            "get": {
+                "description": "Endpoint to get orders for prediction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Visitors"
+                ],
+                "summary": "Endpoint to get orders for prediction",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/visitors/{from}/{to}/{storeId}": {
+            "get": {
+                "description": "Endpoint to get visitors for prediction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Visitors"
+                ],
+                "summary": "Endpoint to get visitors for prediction",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/facebook": {
+            "post": {
+                "description": "Endpoint to send logged user account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Endpoint to send logged user account",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/structs.Account"
+                        }
+                    }
+                }
+            }
+        },
+        "/forgot/{accountId}/{lang}": {
+            "get": {
+                "description": "Endpoint to send new password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Password"
+                ],
+                "summary": "Endpoint to send new passwrod",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/healthcheck": {
+            "get": {
+                "description": "Endpoint to check function",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Healthcheck"
+                ],
+                "summary": "Endpoint to check function",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/open-data": {
+            "post": {
+                "description": "Endpoint to save open data for store",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OpenData"
+                ],
+                "summary": "Endpoint to save open data for store",
+                "parameters": [
+                    {
+                        "description": "OpenData object to store in database",
+                        "name": "od.OpenData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.OpenData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/open-data/{storeId}": {
+            "get": {
+                "description": "Endpoint to get opendata for store",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OpenData"
+                ],
+                "summary": "Endpoint to get opendata for store",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.OpenData"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/order": {
+            "post": {
+                "description": "Endpoint to store Order data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Endpoint to store Order data",
+                "parameters": [
+                    {
+                        "description": "Order object to store in database",
+                        "name": "o.Order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Order"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/product/{storeId}/{productCode}": {
+            "get": {
+                "description": "Endpoint to get Orders for each product by code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Endpoint to get Orders for each product by code",
+                "parameters": [
+                    {
+                        "description": "Order object to store in database",
+                        "name": "o.Order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Order"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/{storeId}/{limit}/{offset}": {
+            "get": {
+                "description": "Endpoint to get orders for each Client",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Endpoint to get orders for each Client",
+                "parameters": [
+                    {
+                        "description": "Order object to store in database",
+                        "name": "o.Order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Order"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/plans": {
+            "get": {
+                "description": "Endpoint to return plans",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plans"
+                ],
+                "summary": "Endpoint to return plans",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Plans"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Endpoint to update Plans data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plans"
+                ],
+                "summary": "Endpoint to update Plans data",
+                "parameters": [
+                    {
+                        "description": "Plans object to update in database",
+                        "name": "pl.Plans",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/structs.Plans"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Endpoint to store Plans data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plans"
+                ],
+                "summary": "Endpoint to store Plans data",
+                "parameters": [
+                    {
+                        "description": "Plans object to store in database",
+                        "name": "pl.Plans",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/structs.Plans"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/plans/paid": {
+            "get": {
+                "description": "Endpoint to return paid plans",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plans"
+                ],
+                "summary": "Endpoint to return paid plans",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Plans"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/plans/{planId}": {
+            "delete": {
+                "description": "Endpoint to delete Plans",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plans"
+                ],
+                "summary": "Endpoint to delete Plans",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/prediction/manual/{storeId}/{date}": {
+            "post": {
+                "description": "Endpoint to start manualy prediction for set day",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Endpoint to start manualy prediction for set day",
+                "parameters": [
+                    {
+                        "description": "Order object to store in database",
+                        "name": "o.Order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Order"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/prediction/onetime/{orderId}": {
+            "post": {
+                "description": "Endpoint to store Order for one time prediction data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Endpoint to store Order for one time prediction data",
+                "parameters": [
+                    {
+                        "description": "Order object to store in database",
+                        "name": "o.Order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Order"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/restore/{token}": {
+            "put": {
+                "description": "Endpoint to update password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Password"
+                ],
+                "summary": "Endpoint to update password",
+                "parameters": [
+                    {
+                        "description": "Pw object to update in database",
+                        "name": "structs.Pw",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/structs.Pw"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/store-weights": {
+            "put": {
+                "description": "Endpoint to update StoreWeights data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StoreWeights"
+                ],
+                "summary": "Endpoint to update StoreWeights data",
+                "parameters": [
+                    {
+                        "description": "StoreWeights object to update in database",
+                        "name": "sw.StoreWeights",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/structs.StoreWeights"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/store-weights/{storeId}": {
+            "get": {
+                "description": "Endpoint to get store weights for store",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StoreWeights"
+                ],
+                "summary": "Endpoint to get store weights for store",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.StoreWeights"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stores": {
+            "get": {
+                "description": "Endpoint to get stores",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stores"
+                ],
+                "summary": "Endpoint to get stores",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Stores"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Endpoint to update Stores data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stores"
+                ],
+                "summary": "Endpoint to update Stores data",
+                "parameters": [
+                    {
+                        "description": "Stores object to update in database",
+                        "name": "s.Stores",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/structs.Stores"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Endpoint to store Stores data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stores"
+                ],
+                "summary": "Endpoint to store Stores data",
+                "parameters": [
+                    {
+                        "description": "Stores object to store in database",
+                        "name": "s.Stores",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/structs.Stores"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/stores/{accountId}": {
+            "get": {
+                "description": "Endpoint to get stores per accountId",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stores"
+                ],
+                "summary": "Endpoint to get stores per accountId",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Stores"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stores/{storeId}": {
+            "delete": {
+                "description": "Endpoint to delete Stores",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stores"
+                ],
+                "summary": "Endpoint to delete Stores",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/upgrade/{accountId}": {
+            "post": {
+                "description": "Endpoint to store Order data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Endpoint to store Order data",
+                "parameters": [
+                    {
+                        "description": "Order object to store in database",
+                        "name": "o.Order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Order"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Res"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.OpenData": {
+            "type": "object",
+            "properties": {
+                "customerSatisfaction": {
+                    "type": "number"
+                },
+                "maximalProductPrice": {
+                    "type": "number"
+                },
+                "minimalProductPrice": {
+                    "type": "number"
+                },
+                "perceivedValue": {
+                    "type": "number"
+                },
+                "storePower": {
+                    "type": "number"
+                },
+                "storeRefer": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Order": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "companyNumber": {
+                    "type": "string"
+                },
+                "countryCode": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "paidTo": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "planRefer": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "vatNumber": {
+                    "type": "string"
+                },
+                "zip": {
+                    "type": "string"
+                }
+            }
+        },
+        "structs.Account": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "companyNumber": {
+                    "type": "string"
+                },
+                "countryCode": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "newsletter": {
+                    "type": "boolean"
+                },
+                "newsletterConfirmation": {
+                    "type": "string"
+                },
+                "paidTo": {
+                    "type": "string"
+                },
+                "parent": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "planRefer": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "vatNumber": {
+                    "type": "string"
+                },
+                "zip": {
+                    "type": "string"
+                }
+            }
+        },
+        "structs.Plans": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "free": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "oneTime": {
+                    "type": "boolean"
+                },
+                "period": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "products": {
+                    "type": "integer"
+                }
+            }
+        },
+        "structs.Pw": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "structs.StoreWeights": {
+            "type": "object",
+            "properties": {
+                "a": {
+                    "type": "number"
+                },
+                "b": {
+                    "type": "number"
+                },
+                "beta": {
+                    "type": "number"
+                },
+                "c": {
+                    "type": "number"
+                },
+                "d": {
+                    "type": "number"
+                },
+                "delta": {
+                    "type": "number"
+                },
+                "e": {
+                    "type": "number"
+                },
+                "gama": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "probabilityWeights": {
+                    "type": "string"
+                },
+                "storeRefer": {
+                    "type": "string"
+                }
+            }
+        },
+        "structs.Stores": {
+            "type": "object",
+            "properties": {
+                "accountRefer": {
+                    "type": "string"
+                },
+                "actualCustomerSatisfaction": {
+                    "type": "number"
+                },
+                "actualStorePower": {
+                    "type": "number"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "countryCode": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastPrediction": {
+                    "type": "string"
+                },
+                "maximalProductPrice": {
+                    "type": "number"
+                },
+                "minimalProductPrice": {
+                    "type": "number"
+                },
+                "perceivedValue": {
+                    "type": "number"
+                },
+                "productSell": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "utils.Res": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

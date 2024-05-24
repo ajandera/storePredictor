@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body style="background-image: url('https://www.storepredictor.com/_nuxt/img/header-background.992a550.jpg')">
+<div style="margin: auto;width: 70%;min-height:500px;padding: 30px 20px;background: #f5f5f5;border-radius: 10px;box-sizing: border-box;z-index: 2;text-align: center;padding: 10px;-webkit-box-shadow: 0px 10px 41px -11px rgba(0, 0, 0, 0.7);-moz-box-shadow: 0px 10px 41px -11px rgba(0, 0, 0, 0.7);box-shadow: 0px 10px 41px -11px rgba(0, 0, 0, 0.7)">
+    <div style="text-align:center">
+        <img style="width: 200px;" src="https://www.storepredictor.com/sp_logo.svg"/>
+        <div>
+            <h3>Welcome <span>{{.Email}},</span></h3><br/><br/>
+            <p>we are happy to see you in our storePredictor family.</p>
+        </div>
+        <br>
+        <h1>Ako implementovať kód sledovania</h1>
+        <h2>Vložte tento skript za značku head na svojom webe.</h2>
+        <br>
+    </div>
+    <div style="text-align:left">
+    <pre>
+  &lt;script&gt;
+  (function(i,s,o,g,r,a,m){i['StorePredictorObjectV2']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://cdn.storepredictor.com/sp.v2.js','sp');
+
+  sp('create', 'YOUR_SP_CODE', 'auto');
+  &lt;/script&gt;
+  </pre>
+    </div>
+    <div style="text-align:center">
+        <br>
+        <h2>Vložte tento skript pre koncocovu značku tagu body</h2>
+        <p>Pre trackovanie stránok ktore nereprezentujú detail produktu ani nákupný proces (ako napr. homepage, kontakt
+            form a pod.)</p>
+    </div>
+    <div style="text-align:left">
+    <pre>
+  &lt;script&gt;sp('send', 'pageview', '');&lt;/script&gt;
+    </pre>
+    </div>
+    <div style="text-align:center">
+        <br>
+        <p>Pre trackovanie stránky s detailom produktu vlože za predchadzajúci kód ešte tento kód.</p>
+    </div>
+    <div style="text-align:left">
+    <pre>
+  &lt;script&gt;sp('send', 'pageview', 'PRODUCT_CODE');&lt;/script&gt;
+                      </pre>
+    </div>
+    <div style="text-align:center">
+        <br>
+        <h2>Tento skript vložte do stránky, ktorá sa zobrazí zákazníkovi po úspešnom dokončení objednávky (tzv. thank
+            you page).</h2>
+        <br>
+    </div>
+    <div style="text-align:center">
+    <pre>
+  &lt;script&gt;
+  sp('create', 'YOUR_SP_CODE', 'auto');
+  sp('send', 'order', { orderId: 'ORDER_NUMBER', items:   [ { productCode: 'PRODUCT_CODE', unitPrice: 100, quantity: 1 } ], totalPrice: 100, currency: 'EUR' });
+  &lt;/script&gt;
+      </pre>
+    </div>
+</div>
+</body>
+</html>
+

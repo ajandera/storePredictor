@@ -1,0 +1,803 @@
+basePath: /
+definitions:
+  model.OpenData:
+    properties:
+      customerSatisfaction:
+        type: number
+      maximalProductPrice:
+        type: number
+      minimalProductPrice:
+        type: number
+      perceivedValue:
+        type: number
+      storePower:
+        type: number
+      storeRefer:
+        type: string
+    type: object
+  model.Order:
+    properties:
+      city:
+        type: string
+      companyNumber:
+        type: string
+      countryCode:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      paidTo:
+        type: string
+      password:
+        type: string
+      planRefer:
+        type: string
+      street:
+        type: string
+      vatNumber:
+        type: string
+      zip:
+        type: string
+    type: object
+  structs.Account:
+    properties:
+      city:
+        type: string
+      companyNumber:
+        type: string
+      countryCode:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      newsletter:
+        type: boolean
+      newsletterConfirmation:
+        type: string
+      paidTo:
+        type: string
+      parent:
+        type: string
+      password:
+        type: string
+      planRefer:
+        type: string
+      role:
+        type: string
+      street:
+        type: string
+      vatNumber:
+        type: string
+      zip:
+        type: string
+    type: object
+  structs.Plans:
+    properties:
+      enabled:
+        type: boolean
+      free:
+        type: boolean
+      id:
+        type: string
+      name:
+        type: string
+      oneTime:
+        type: boolean
+      period:
+        type: integer
+      price:
+        type: number
+      products:
+        type: integer
+    type: object
+  structs.Pw:
+    properties:
+      password:
+        type: string
+    type: object
+  structs.StoreWeights:
+    properties:
+      a:
+        type: number
+      b:
+        type: number
+      beta:
+        type: number
+      c:
+        type: number
+      d:
+        type: number
+      delta:
+        type: number
+      e:
+        type: number
+      gama:
+        type: number
+      name:
+        type: string
+      probabilityWeights:
+        type: string
+      storeRefer:
+        type: string
+    type: object
+  structs.Stores:
+    properties:
+      accountRefer:
+        type: string
+      actualCustomerSatisfaction:
+        type: number
+      actualStorePower:
+        type: number
+      code:
+        type: string
+      countryCode:
+        type: string
+      id:
+        type: string
+      lastPrediction:
+        type: string
+      maximalProductPrice:
+        type: number
+      minimalProductPrice:
+        type: number
+      perceivedValue:
+        type: number
+      productSell:
+        type: integer
+      url:
+        type: string
+    type: object
+  utils.Res:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+host: localhost:9996
+info:
+  contact:
+    email: ales@storepredictor.com
+    name: Ales Jandera
+    url: http://storepredictor.com
+  description: Private REST API to for user interface application
+  license:
+    name: Commercial
+  title: storePredictor private REST API
+  version: "1.0"
+paths:
+  /account/email/{email}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get account by email
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Account'
+      summary: Endpoint to get account by email
+      tags:
+      - Account
+  /account/me:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to send logged user account
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Account'
+      summary: Endpoint to send logged user account
+      tags:
+      - Account
+  /account/order/{accountId}/{storeId}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get account orders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to get account orders
+      tags:
+      - Account
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to store Order data from account
+      parameters:
+      - description: Order object to store in database
+        in: body
+        name: o.Order
+        required: true
+        schema:
+          $ref: '#/definitions/model.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to store Order data from account
+      tags:
+      - Order
+  /accounts:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to send all accounts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Account'
+            type: array
+      summary: Endpoint to send all accounts
+      tags:
+      - Account
+    put:
+      consumes:
+      - application/json
+      description: Endpoint to update account data
+      parameters:
+      - description: Account object to update in database
+        in: body
+        name: a.Account
+        required: true
+        schema:
+          $ref: '#/definitions/structs.Account'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to store account data
+      tags:
+      - Account
+  /accounts/{accountId}:
+    delete:
+      consumes:
+      - application/json
+      description: Endpoint to delete account
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to delete account
+      tags:
+      - Account
+  /accounts/{lang}:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to StoreWeights data
+      parameters:
+      - description: StoreWeights object to store in database
+        in: body
+        name: sw.StoreWeights
+        required: true
+        schema:
+          $ref: '#/definitions/structs.StoreWeights'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to store StoreWeights data
+      tags:
+      - StoreWeights
+  /admin/orders/{from}/{to}/{storeId}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get orders for prediction
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to get orders for prediction
+      tags:
+      - Visitors
+  /admin/visitors/{from}/{to}/{storeId}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get visitors for prediction
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to get visitors for prediction
+      tags:
+      - Visitors
+  /facebook:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to send logged user account
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Account'
+      summary: Endpoint to send logged user account
+      tags:
+      - Account
+  /forgot/{accountId}/{lang}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to send new password
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to send new passwrod
+      tags:
+      - Password
+  /healthcheck:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to check function
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to check function
+      tags:
+      - Healthcheck
+  /open-data:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to save open data for store
+      parameters:
+      - description: OpenData object to store in database
+        in: body
+        name: od.OpenData
+        required: true
+        schema:
+          $ref: '#/definitions/model.OpenData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to save open data for store
+      tags:
+      - OpenData
+  /open-data/{storeId}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get opendata for store
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.OpenData'
+            type: array
+      summary: Endpoint to get opendata for store
+      tags:
+      - OpenData
+  /order:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to store Order data
+      parameters:
+      - description: Order object to store in database
+        in: body
+        name: o.Order
+        required: true
+        schema:
+          $ref: '#/definitions/model.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to store Order data
+      tags:
+      - Order
+  /orders/{storeId}/{limit}/{offset}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get orders for each Client
+      parameters:
+      - description: Order object to store in database
+        in: body
+        name: o.Order
+        required: true
+        schema:
+          $ref: '#/definitions/model.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to get orders for each Client
+      tags:
+      - Order
+  /orders/product/{storeId}/{productCode}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get Orders for each product by code
+      parameters:
+      - description: Order object to store in database
+        in: body
+        name: o.Order
+        required: true
+        schema:
+          $ref: '#/definitions/model.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to get Orders for each product by code
+      tags:
+      - Order
+  /plans:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to return plans
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Plans'
+            type: array
+      summary: Endpoint to return plans
+      tags:
+      - Plans
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to store Plans data
+      parameters:
+      - description: Plans object to store in database
+        in: body
+        name: pl.Plans
+        required: true
+        schema:
+          $ref: '#/definitions/structs.Plans'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to store Plans data
+      tags:
+      - Plans
+    put:
+      consumes:
+      - application/json
+      description: Endpoint to update Plans data
+      parameters:
+      - description: Plans object to update in database
+        in: body
+        name: pl.Plans
+        required: true
+        schema:
+          $ref: '#/definitions/structs.Plans'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to update Plans data
+      tags:
+      - Plans
+  /plans/{planId}:
+    delete:
+      consumes:
+      - application/json
+      description: Endpoint to delete Plans
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to delete Plans
+      tags:
+      - Plans
+  /plans/paid:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to return paid plans
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Plans'
+            type: array
+      summary: Endpoint to return paid plans
+      tags:
+      - Plans
+  /prediction/manual/{storeId}/{date}:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to start manualy prediction for set day
+      parameters:
+      - description: Order object to store in database
+        in: body
+        name: o.Order
+        required: true
+        schema:
+          $ref: '#/definitions/model.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to start manualy prediction for set day
+      tags:
+      - Order
+  /prediction/onetime/{orderId}:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to store Order for one time prediction data
+      parameters:
+      - description: Order object to store in database
+        in: body
+        name: o.Order
+        required: true
+        schema:
+          $ref: '#/definitions/model.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to store Order for one time prediction data
+      tags:
+      - Order
+  /restore/{token}:
+    put:
+      consumes:
+      - application/json
+      description: Endpoint to update password
+      parameters:
+      - description: Pw object to update in database
+        in: body
+        name: structs.Pw
+        required: true
+        schema:
+          $ref: '#/definitions/structs.Pw'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to update password
+      tags:
+      - Password
+  /store-weights:
+    put:
+      consumes:
+      - application/json
+      description: Endpoint to update StoreWeights data
+      parameters:
+      - description: StoreWeights object to update in database
+        in: body
+        name: sw.StoreWeights
+        required: true
+        schema:
+          $ref: '#/definitions/structs.StoreWeights'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to update StoreWeights data
+      tags:
+      - StoreWeights
+  /store-weights/{storeId}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get store weights for store
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.StoreWeights'
+            type: array
+      summary: Endpoint to get store weights for store
+      tags:
+      - StoreWeights
+  /stores:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get stores
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Stores'
+            type: array
+      summary: Endpoint to get stores
+      tags:
+      - Stores
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to store Stores data
+      parameters:
+      - description: Stores object to store in database
+        in: body
+        name: s.Stores
+        required: true
+        schema:
+          $ref: '#/definitions/structs.Stores'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to store Stores data
+      tags:
+      - Stores
+    put:
+      consumes:
+      - application/json
+      description: Endpoint to update Stores data
+      parameters:
+      - description: Stores object to update in database
+        in: body
+        name: s.Stores
+        required: true
+        schema:
+          $ref: '#/definitions/structs.Stores'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to update Stores data
+      tags:
+      - Stores
+  /stores/{accountId}:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint to get stores per accountId
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Stores'
+            type: array
+      summary: Endpoint to get stores per accountId
+      tags:
+      - Stores
+  /stores/{storeId}:
+    delete:
+      consumes:
+      - application/json
+      description: Endpoint to delete Stores
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to delete Stores
+      tags:
+      - Stores
+  /upgrade/{accountId}:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to store Order data
+      parameters:
+      - description: Order object to store in database
+        in: body
+        name: o.Order
+        required: true
+        schema:
+          $ref: '#/definitions/model.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Res'
+      summary: Endpoint to store Order data
+      tags:
+      - Order
+swagger: "2.0"

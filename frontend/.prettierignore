@@ -1,0 +1,6 @@
+# Ignore artifacts:
+build
+devops
+mode_modules
+.nuxt
+dist

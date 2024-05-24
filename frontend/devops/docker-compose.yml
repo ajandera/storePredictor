@@ -1,0 +1,9 @@
+version: '3'
+services:
+    php:
+        image: ${IMAGE_NAME}/prediction-presentation-website:${IMAGE_TAG_REF}
+        labels:
+            - net.janci.proxy.host=${DOMAIN}
+            - net.janci.proxy.internal-port=${WEBSITE_LISTEN_PORT}
+        ports:
+            - ${WEBSITE_LISTEN_PORT}:80
