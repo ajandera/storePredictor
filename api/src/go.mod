@@ -1,6 +1,8 @@
 module main
 
-go 1.19
+go 1.27.0
+
+toolchain go1.27.3
 
 require (
 	github.com/ajandera/sp_model v0.0.0-20240414194514-7b4d73a231c4

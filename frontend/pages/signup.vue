@@ -73,8 +73,8 @@
       </v-form>
       <v-col cols="12" align="right" class="mt-5">
         <v-menu bottom origin="center center" transition="scale-transition">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn color="secondary" dark v-bind="attrs" v-on="on">
+          <template v-slot:activator="{ props }">
+            <v-btn color="secondary" dark v-bind="props">
               <country-flag
                 :country="$i18n.locale.replace('en', 'us').replace('cs', 'cz')"
                 size="small"
@@ -175,7 +175,7 @@ export default class SignPage extends Vue {
           this.newsletter = false;
           this.$router.push({ path: '/' });
         } else {
-          this.updateText(response.data.message);
+          this.updateText(response.data.error || response.data.message);
           this.updateColor("red");
           this.updateShow(true);
           this.toggleSpinner(false);
@@ -293,10 +293,10 @@ input[type="radio"] {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 25px;
 }
-.white--text /deep/ label {
+.white--text :deep(label) {
   color: #fff;
 }
-.white--text /deep/ .v-icon {
+.white--text :deep(.v-icon) {
   color: #fff;
 }
 .groupCenter {

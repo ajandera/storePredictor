@@ -11,8 +11,8 @@
       </v-col>
       <v-col class="shrink">
         <v-dialog v-model="dialog" max-width="500px">
-          <template v-slot:activator="{ on: dialog, attrs }">
-            <v-btn v-bind="attrs" v-on="dialog">{{ $t('upgrade.btn') }}</v-btn>
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props">{{ $t('upgrade.btn') }}</v-btn>
           </template>
           <v-card>
             <v-card-title>
@@ -25,9 +25,9 @@
                   v-model="plan"
                   :items="plans"
                   :label="$t('upgrade.selectPlan')"
-                  item-text="text"
+                  item-title="text"
                   item-value="Id"
-                  @change="handleSubmit(plan)"
+                  @update:modelValue="handleSubmit(plan)"
                   required
                 ></v-select>
                 <v-checkbox
@@ -37,7 +37,7 @@
 
               </v-container>
               <v-container v-if="pay.account !== undefined">
-                <no-ssr>
+                <ClientOnly>
                   <paypal-checkout
                     class="mt-5"
                     :amount="pay.amount"
@@ -48,7 +48,7 @@
                     :braintree="braintreeSdk"
                   >
                   </paypal-checkout>
-                </no-ssr>
+                </ClientOnly>
               </v-container>
             </v-card-text>
             <v-card-actions>
@@ -109,7 +109,7 @@ export default class Upgrade extends Vue {
   };
   payPalEnv: string = this.$config.$paypalEnv;
   // @ts-ignore
-  braintreeSdk: any = window.braintree;
+  braintreeSdk: any = typeof window !== "undefined" ? (window as any).braintree : undefined;
   data: any = {};
   $auth: any;
 

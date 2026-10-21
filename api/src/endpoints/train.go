@@ -38,6 +38,10 @@ func ProceedTrain(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if _, ok := authenticate(w, r); !ok {
+		return
+	}
+
 	response := simplejson.New()
 
 	// Declare a new TrainData struct.
@@ -48,12 +52,16 @@ func ProceedTrain(w http.ResponseWriter, r *http.Request) {
 	errBody := json.NewDecoder(r.Body).Decode(&trainData)
 	if errBody != nil {
 		http.Error(w, errBody.Error(), http.StatusBadRequest)
-		log.Printf(errBody.Error())
+		log.Print(errBody.Error())
 		return
 	}
 
 	vars := mux.Vars(r)
 	corpora := vars["corpora"]
+	if strings.ContainsAny(corpora, "/\\..") || corpora == "" {
+		utils.WriteJSONError(w, http.StatusBadRequest, "Invalid corpora name")
+		return
+	}
 
 	store, err := storage.NewSeparatedMemoryStorage("./data/" + corpora + ".gob")
 	if err != nil {
@@ -103,9 +111,11 @@ func ProceedTrain(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	err = ioutil.WriteFile(corporaFiles, contentToWrite, 0644)
+	err = os.WriteFile(corporaFiles, contentToWrite, 0644)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		utils.WriteJSONError(w, http.StatusInternalServerError, "Failed to write training data")
+		return
 	}
 
 	// train the new data
@@ -117,7 +127,7 @@ func ProceedTrain(w http.ResponseWriter, r *http.Request) {
 
 	payload, err := response.MarshalJSON()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return
 	}
 
@@ -140,6 +150,10 @@ func ProceedFeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if _, ok := authenticate(w, r); !ok {
+		return
+	}
+
 	response := simplejson.New()
 
 	// Declare a new TrainData struct.
@@ -147,6 +161,10 @@ func ProceedFeed(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	corpora := vars["corpora"]
+	if strings.ContainsAny(corpora, "/\\..") || corpora == "" {
+		utils.WriteJSONError(w, http.StatusBadRequest, "Invalid corpora name")
+		return
+	}
 	var result structs.Xml
 	var feedUrl FeedUrl
 
@@ -155,7 +173,7 @@ func ProceedFeed(w http.ResponseWriter, r *http.Request) {
 	errBody := json.NewDecoder(r.Body).Decode(&feedUrl)
 	if errBody != nil {
 		http.Error(w, errBody.Error(), http.StatusBadRequest)
-		log.Printf(errBody.Error())
+		log.Print(errBody.Error())
 		return
 	}
 
@@ -236,7 +254,7 @@ func ProceedFeed(w http.ResponseWriter, r *http.Request) {
 
 	payload, err := response.MarshalJSON()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return
 	}
 

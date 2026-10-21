@@ -42,7 +42,7 @@ func ProceedAsk(w http.ResponseWriter, r *http.Request, storageStruct []structs.
 	errBody := json.NewDecoder(r.Body).Decode(&question)
 	if errBody != nil {
 		http.Error(w, errBody.Error(), http.StatusBadRequest)
-		log.Printf(errBody.Error())
+		log.Print(errBody.Error())
 		return
 	}
 
@@ -171,7 +171,7 @@ func ProceedAsk(w http.ResponseWriter, r *http.Request, storageStruct []structs.
 
 	payload, err := response.MarshalJSON()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return
 	}
 

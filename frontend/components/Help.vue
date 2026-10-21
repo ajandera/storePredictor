@@ -1,8 +1,8 @@
 <template>
   <v-dialog v-model="helpDetail">
-    <template v-slot:activator="{ on, attrs }">
-      <v-btn elevation="2" icon text v-bind="attrs" v-on="on" small>
-        <v-icon x-small>mdi-help</v-icon>
+    <template v-slot:activator="{ props }">
+      <v-btn elevation="2" icon variant="text" v-bind="props" size="small">
+        <v-icon size="x-small">mdi-help</v-icon>
       </v-btn>
     </template>
     <v-card>

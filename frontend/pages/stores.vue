@@ -12,14 +12,13 @@
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
           <v-dialog v-if="role !== 'Viewer'" v-model="dialog" max-width="500px">
-            <template v-slot:activator="{ on, attrs }">
+            <template v-slot:activator="{ props }">
               <Help title="Store management" keyString="help-storeManagement" />
               <v-btn
                 color="primary"
                 dark
                 class="mb-2 mr-2"
-                v-bind="attrs"
-                v-on="on"
+                v-bind="props"
               >
                 {{ $t("stores.add") }}
               </v-btn>
@@ -45,7 +44,7 @@
                         <v-autocomplete
                           :items="countries"
                           :filter="customFilter"
-                          item-text="Name"
+                          item-title="Name"
                           item-value="Code"
                           :rules="[(v) => !!v || 'Item is required']"
                           :label="$t('stores.form.country')"
@@ -214,13 +213,12 @@
                         <v-divider class="mx-4" inset vertical></v-divider>
                         <v-spacer></v-spacer>
                         <v-dialog v-model="dialogAddSupplier" max-width="500px">
-                          <template v-slot:activator="{ on, attrs }">
+                          <template v-slot:activator="{ props }">
                             <v-btn
                               color="primary"
                               dark
                               class="mb-2"
-                              v-bind="attrs"
-                              v-on="on"
+                              v-bind="props"
                             >
                               {{ $t("suppliers.add") }}
                             </v-btn>
@@ -293,7 +291,7 @@
                                       <v-autocomplete
                                         :items="countries"
                                         :filter="customFilter"
-                                        item-text="Name"
+                                        item-title="Name"
                                         item-value="Code"
                                         :rules="ruleCountry"
                                         :label="$t('suppliers.form.country')"
@@ -375,12 +373,11 @@
                     </template>
                     <template v-slot:item.actions="{ item }">
                       <v-tooltip bottom>
-                        <template v-slot:activator="{ on, attrs }">
+                        <template v-slot:activator="{ props }">
                           <v-icon
                             small
                             class="mr-2"
-                            v-bind="attrs"
-                            v-on="on"
+                            v-bind="props"
                             @click="editSupplier(item)"
                           >
                             mdi-pencil
@@ -389,11 +386,10 @@
                         <span>{{ $t("tooltips.edit") }}</span>
                       </v-tooltip>
                       <v-tooltip bottom>
-                        <template v-slot:activator="{ on, attrs }">
+                        <template v-slot:activator="{ props }">
                           <v-icon
                             small
-                            v-bind="attrs"
-                            v-on="on"
+                            v-bind="props"
                             @click="deleteSupplier(item)"
                           >
                             mdi-delete
@@ -434,13 +430,12 @@
                         <v-divider class="mx-4" inset vertical></v-divider>
                         <v-spacer></v-spacer>
                         <v-dialog v-model="dialogAddInvoice" max-width="500px">
-                          <template v-slot:activator="{ on: invoice, attrs }">
+                          <template v-slot:activator="{ props }">
                             <v-btn
                               color="primary"
                               dark
                               class="mb-2"
-                              v-bind="attrs"
-                              v-on="{ ...invoice }"
+                              v-bind="props"
                             >
                               {{ $t("invoices.add") }}
                             </v-btn>
@@ -469,15 +464,14 @@
                                         min-width="auto"
                                       >
                                         <template
-                                          v-slot:activator="{ on, attrs }"
+                                          v-slot:activator="{ props }"
                                         >
                                           <v-text-field
                                             v-model="invoice.DueDate"
                                             :label="$t('invoices.form.duedate')"
                                             prepend-icon="mdi-calendar"
                                             readonly
-                                            v-bind="attrs"
-                                            v-on="on"
+                                            v-bind="props"
                                             class="pt-5 mr-2"
                                             :rules="ruleDate"
                                           ></v-text-field>
@@ -535,12 +529,11 @@
                     </template>
                     <template v-slot:item.actions="{ item }">
                       <v-tooltip bottom>
-                        <template v-slot:activator="{ on, attrs }">
+                        <template v-slot:activator="{ props }">
                           <v-icon
                             small
                             class="mr-2"
-                            v-bind="attrs"
-                            v-on="on"
+                            v-bind="props"
                             @click="editInvoice(item)"
                           >
                             mdi-pencil
@@ -549,11 +542,10 @@
                         <span>{{ $t("tooltips.edit") }}</span>
                       </v-tooltip>
                       <v-tooltip bottom>
-                        <template v-slot:activator="{ on, attrs }">
+                        <template v-slot:activator="{ props }">
                           <v-icon
                             small
-                            v-bind="attrs"
-                            v-on="on"
+                            v-bind="props"
                             @click="deleteInvoice(item)"
                           >
                             mdi-delete
@@ -605,32 +597,32 @@
       <template v-slot:item.actions="{ item }">
         <v-btn-toggle rounded dense>
           <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn v-bind="attrs" v-on="on" @click="detailItem(item)">
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" @click="detailItem(item)">
                 <v-icon small class="mr-2" color="success"> mdi-web </v-icon>
               </v-btn>
             </template>
             <span>{{ $t("tooltips.implement") }}</span>
           </v-tooltip>
           <v-tooltip bottom v-if="role !== 'Viewer'">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn v-bind="attrs" v-on="on" @click="showSuppliers(item)">
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" @click="showSuppliers(item)">
                 <v-icon small> mdi-factory </v-icon>
               </v-btn>
             </template>
             <span>{{ $t("tooltips.suppliers") }}</span>
           </v-tooltip>
           <v-tooltip bottom v-if="role !== 'Viewer'">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn v-bind="attrs" v-on="on" @click="showInvoices(item)">
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" @click="showInvoices(item)">
                 <v-icon small> mdi-file </v-icon>
               </v-btn>
             </template>
             <span>{{ $t("tooltips.invoices") }}</span>
           </v-tooltip>
           <v-tooltip bottom v-if="role !== 'Viewer'">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn v-bind="attrs" v-on="on" @click="editItem(item)">
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" @click="editItem(item)">
                 <v-icon small class="mr-2" color="secondary">
                   mdi-pencil
                 </v-icon>
@@ -639,8 +631,8 @@
             <span>{{ $t("tooltips.edit") }}</span>
           </v-tooltip>
           <v-tooltip bottom v-if="role !== 'Viewer'">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn v-bind="attrs" v-on="on" @click="deleteItem(item)">
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" @click="deleteItem(item)">
                 <v-icon small color="error"> mdi-delete </v-icon>
               </v-btn>
             </template>
@@ -1182,7 +1174,7 @@ export default class StoresPage extends Vue {
   deleteInvoiceConfirm() {
     this.toggleSpinner(true);
     this.$axios
-      .delete("/invoice/" + this.supplier.Id)
+      .delete("/invoice/" + this.invoice.Id)
       .then((response: any) => {
         if (response.data.success) {
           this.updateText(this.$i18n.t("invoices.deleted"));
@@ -1190,13 +1182,13 @@ export default class StoresPage extends Vue {
           this.updateShow(true);
           this.showInvoices(this.supplierStore);
           this.toggleSpinner(false);
-          this.closeSupplierDelete();
+          this.closeInvoiceDelete();
         } else {
           this.updateText(response.data.error);
           this.updateColor("red");
           this.updateShow(true);
           this.toggleSpinner(false);
-          this.closeSupplierDelete();
+          this.closeInvoiceDelete();
         }
       });
   }
@@ -1236,9 +1228,11 @@ export default class StoresPage extends Vue {
           Street: this.supplier.Street,
           City: this.supplier.City,
           Zip: this.supplier.Zip,
+          Country: this.supplier.Country,
           Email: this.supplier.Email,
           Phone: this.supplier.Phone,
           Person: this.supplier.Person,
+          StoreRefer: this.supplierStore.Id,
           Template: this.supplier.Template,
           Subject: this.supplier.Subject,
         })
@@ -1263,6 +1257,7 @@ export default class StoresPage extends Vue {
           Street: this.supplier.Street,
           City: this.supplier.City,
           Zip: this.supplier.Zip,
+          Country: this.supplier.Country,
           Email: this.supplier.Email,
           Phone: this.supplier.Phone,
           Person: this.supplier.Person,
@@ -1320,8 +1315,9 @@ export default class StoresPage extends Vue {
       this.$axios
         .put("/invoice", {
           Id: this.invoice.Id,
+          StoreRefer: this.supplierStore.Id,
           DueDate: new Date(this.invoice.DueDate).toISOString(),
-          Amount: this.invoice.Amount,
+          Amount: String(this.invoice.Amount),
           Currency: this.invoice.Currency,
         })
         .then((response: any) => {
@@ -1342,7 +1338,7 @@ export default class StoresPage extends Vue {
       this.$axios
         .post("/invoice", {
           DueDate: new Date(this.invoice.DueDate).toISOString(),
-          Amount: this.invoice.Amount,
+          Amount: String(this.invoice.Amount),
           Currency: this.invoice.Currency,
           StoreRefer: this.supplierStore.Id,
         })

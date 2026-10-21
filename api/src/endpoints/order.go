@@ -33,6 +33,11 @@ func AddOrder(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		return
 	}
 
+	callerId, ok := authenticate(w, r)
+	if !ok {
+		return
+	}
+
 	// Declare a new Visitor struct.
 	var order o.Order
 
@@ -41,19 +46,19 @@ func AddOrder(w http.ResponseWriter, r *http.Request, m model.Repository) {
 	err := json.NewDecoder(r.Body).Decode(&order)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return
 	}
 
 	response := simplejson.New()
-	account := m.EditAccount("", order.Name, order.Email, order.Street, order.City, order.Zip, order.CountryCode,
+	account := m.EditAccount(callerId, order.Name, order.Email, order.Street, order.City, order.Zip, order.CountryCode,
 		order.CompanyNumber, order.VatNumber, order.PaidTo, order.PlanRefer, "", "", order.Password, true)
 	response.Set("success", true)
-	response.Set("account", account)
+	response.Set("account", utils.PublicAccount(account))
 
 	payload, err := response.MarshalJSON()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -80,11 +85,16 @@ func AccountOrder(w http.ResponseWriter, r *http.Request, m model.Repository) {
 	accountId := vars["accountId"]
 	storeId := vars["storeId"]
 	if isAuthorized(w, r, m, storeId) == true {
+		callerId, _ := utils.ParseToken(utils.BearerToken(r), utils.TokenTypeAccess)
+		if !canViewAccount(m, callerId, accountId) {
+			denyAccess(w)
+			return
+		}
 		var order o.Prediction
 		err := json.NewDecoder(r.Body).Decode(&order)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -95,7 +105,7 @@ func AccountOrder(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -123,13 +133,18 @@ func OnetimePrediction(w http.ResponseWriter, r *http.Request, m model.Repositor
 	vars := mux.Vars(r)
 	orderId := vars["orderId"]
 	order := m.GetOrderById(orderId)
+	if !isAuthorized(w, r, m, order.StoreRefer) {
+		return
+	}
 	log.Println("Start publishing")
 	conn, err := rabbitmq.NewConn(
 		"amqp://"+os.Getenv("RABBIT_USER")+":"+os.Getenv("RABBIT_PASS")+"@"+os.Getenv("RABBIT_HOST"),
 		rabbitmq.WithConnectionOptionsLogging,
 	)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		utils.WriteJSONError(w, http.StatusInternalServerError, "Messaging service unavailable.")
+		return
 	}
 	defer conn.Close()
 	publisher, err := rabbitmq.NewPublisher(
@@ -139,7 +154,10 @@ func OnetimePrediction(w http.ResponseWriter, r *http.Request, m model.Repositor
 
 	if err != nil {
 		log.Println(err)
+		utils.WriteJSONError(w, http.StatusInternalServerError, "Messaging service unavailable.")
+		return
 	}
+	defer publisher.Close()
 
 	log.Println("Predict store id: " + order.StoreRefer)
 	message := simplejson.New()
@@ -155,7 +173,7 @@ func OnetimePrediction(w http.ResponseWriter, r *http.Request, m model.Repositor
 		rabbitmq.WithPublishOptionsContentType("application/json"),
 	)
 	if errPublisher != nil {
-		log.Printf(errPublisher.Error())
+		log.Print(errPublisher.Error())
 		return
 	}
 
@@ -165,7 +183,7 @@ func OnetimePrediction(w http.ResponseWriter, r *http.Request, m model.Repositor
 
 	payload, err := response.MarshalJSON()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return
 	}
 
@@ -202,7 +220,7 @@ func GetClientOrders(w http.ResponseWriter, r *http.Request, m model.Repository)
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -237,7 +255,7 @@ func GetOrdersForProduct(w http.ResponseWriter, r *http.Request, m model.Reposit
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -256,7 +274,7 @@ func GetOrdersForProduct(w http.ResponseWriter, r *http.Request, m model.Reposit
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /prediction/manual/{storeId}/{date}  [post]
-func ManualPrediction(w http.ResponseWriter, r *http.Request, publisher *rabbitmq.Publisher) {
+func ManualPrediction(w http.ResponseWriter, r *http.Request, m model.Repository, publisher *rabbitmq.Publisher) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -265,6 +283,14 @@ func ManualPrediction(w http.ResponseWriter, r *http.Request, publisher *rabbitm
 	vars := mux.Vars(r)
 	storeId := vars["storeId"]
 	date := vars["date"]
+
+	if !isAuthorized(w, r, m, storeId) {
+		return
+	}
+	if publisher == nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, "Messaging service unavailable.")
+		return
+	}
 
 	log.Println("Start manual publishing")
 
@@ -322,17 +348,26 @@ func UpgradeOrder(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		return
 	}
 
+	callerId, ok := authenticate(w, r)
+	if !ok {
+		return
+	}
+
 	// Declare a new Visitor struct.
 	var upgrade o.Upgrade
 	vars := mux.Vars(r)
 	accountId := vars["accountId"]
+	if !canManageAccount(m, callerId, accountId) {
+		denyAccess(w)
+		return
+	}
 
 	// Try to decode the request body into the struct. If there is an error,
 	// respond to the client with the error message and a 400 status code.
 	err := json.NewDecoder(r.Body).Decode(&upgrade)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return
 	}
 
@@ -340,9 +375,9 @@ func UpgradeOrder(w http.ResponseWriter, r *http.Request, m model.Repository) {
 	account := m.GetAccountById(accountId)
 	paidTo := time.Now()
 	if upgrade.Year == true {
-		paidTo.AddDate(1, 0, 0)
+		paidTo = paidTo.AddDate(1, 0, 0)
 	} else {
-		paidTo.AddDate(0, 1, 0)
+		paidTo = paidTo.AddDate(0, 1, 0)
 	}
 	response.Set("upgrade", upgrade)
 
@@ -350,11 +385,11 @@ func UpgradeOrder(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		account.CompanyNumber, account.VatNumber, paidTo.Format(time.RFC3339), upgrade.PlanRefer, "", "", "", true)
 
 	response.Set("success", true)
-	response.Set("account", updatedAccount)
+	response.Set("account", utils.PublicAccount(updatedAccount))
 
 	payload, err := response.MarshalJSON()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 	}
 
 	w.Header().Set("Content-Type", "application/json")

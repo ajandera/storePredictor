@@ -1,6 +1,6 @@
 <template>
   <div id="header" class="header errorHeader">
-    <h1 v-if="error.statusCode === 404">
+    <h1 v-if="error && error.statusCode === 404">
       <img src="/sp_logo.svg" alt="storePredictor" class="logo" /><br>
       {{ pageNotFound }}<br><br>
       <NuxtLink to="/">
@@ -33,7 +33,7 @@ export default class ErrorLayout extends Vue {
 
   head() {
     return {
-      title: this.error.statusCode === 404 ? this.pageNotFound : this.otherError
+      title: this.error && this.error.statusCode === 404 ? this.pageNotFound : this.otherError
     };
   }
 }

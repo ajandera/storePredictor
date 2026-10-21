@@ -20,7 +20,6 @@ services:
       - "information-data:/var/lib/postgresql/data"
   api:
     build: ./api
-    entrypoint: [ "sh", "/api/entrypoint.sh" ]
     environment:
       - CLIENTS_DATA_HOST=clients-data
       - CLIENTS_DATA_USER=demo
@@ -32,11 +31,25 @@ services:
       - CLIENTS_INFORMATION_PASSWORD=demo
       - CLIENTS_INFORMATION_DATABASE=information-data
       - CLIENTS_INFORMATION_PORT=5432
+      - INFLUX_TOKEN=V0A3uH9ldfPyWffgbUJAjZ24t5osqozadz5e4tW3LD_a1oIEMjJE6pokArEfg8Wvt7FhjlLWPjWJPmLUaUJRnQ==
+      - INFLUX_HOST=http://graph-database:8086
+      - INFLUX_ORGANIZATION=store_predictor
+      - RABBIT_HOST=rabbit
+      - RABBIT_USER=guest
+      - RABBIT_PASS=sD9pMgCTnv8STh2y
+      - JWT_SECRET=super-secret-storepredictor-jwt-signing-key-production-32-chars
+      - SMTP_URL=mailhog
+      - SMTP_PORT=1025
       - API_DOC=true
     volumes: 
       - "../api/src:/application"
     ports:
       - "9999:8888"
+    depends_on:
+      - clients-data
+      - clients-information-data
+      - rabbit
+      - graph-database
   adminer:
     image: adminer
     ports:
@@ -70,12 +83,8 @@ services:
       NAME: "rabbitmq1"
     volumes:
       - "./docker/rabbitmq:/var/lib/rabbitmq:rw"
-      #- "./docker/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro"
-      #- "./docker/enabled_plugins:/etc/rabbitmq/enabled_plugins"
-      #- "./autocluster-0.4.1.ez:/usr/lib/rabbitmq/lib/rabbitmq_server-3.5.5/plugins/autocluster-0.4.1.ez"
   prediction-producer:
     build: ./prediction-producer
-    entrypoint: [ "sh", "/prediction-producer/entrypoint.sh" ]
     environment:
       - CLIENTS_DATA_HOST=clients-data
       - CLIENTS_DATA_USER=demo
@@ -95,9 +104,13 @@ services:
       - RABBIT_PASS=sD9pMgCTnv8STh2y
     volumes: 
       - "../prediction-producer/src:/application"
+    depends_on:
+      - clients-data
+      - clients-information-data
+      - rabbit
+      - graph-database
   prediction-model:
     build: ./prediction
-    entrypoint: [ "sh", "/prediction/entrypoint.sh" ]
     environment:
       - CLIENTS_DATA_HOST=clients-data
       - CLIENTS_DATA_USER=demo
@@ -117,9 +130,13 @@ services:
       - RABBIT_PASS=sD9pMgCTnv8STh2y
     volumes: 
       - "../prediction/src:/application"
+    depends_on:
+      - clients-data
+      - clients-information-data
+      - rabbit
+      - graph-database
   parser-producer:
     build: ./parser-producer
-    entrypoint: [ "sh", "/entrypoint.sh" ]
     environment:
       - CLIENTS_DATA_HOST=clients-data
       - CLIENTS_DATA_USER=demo
@@ -136,9 +153,12 @@ services:
       - RABBIT_PASS=sD9pMgCTnv8STh2y
     volumes: 
       - "../parser-producer/src:/application"
+    depends_on:
+      - clients-data
+      - clients-information-data
+      - rabbit
   parser:
     build: ./parser
-    entrypoint: [ "sh", "/parser/entrypoint.sh" ]
     environment:
       - CLIENTS_DATA_HOST=clients-data
       - CLIENTS_DATA_USER=demo
@@ -155,6 +175,10 @@ services:
       - RABBIT_PASS=sD9pMgCTnv8STh2y
     volumes: 
       - "../parser/src:/application"
+    depends_on:
+      - clients-data
+      - clients-information-data
+      - rabbit
 volumes:
   clients-data:
   information-data:

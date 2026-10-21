@@ -48,7 +48,7 @@ func GetPredictedVisitors(w http.ResponseWriter, r *http.Request, m model.Reposi
 				|> filter(fn: (r) => (r._measurement == "visitors" and r._field == "value"))`
 		data, err := i.GetInfluxData(query, os.Getenv("INFLUX_ORGANIZATION"))
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 		// prepare data to response
@@ -58,7 +58,7 @@ func GetPredictedVisitors(w http.ResponseWriter, r *http.Request, m model.Reposi
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -90,14 +90,31 @@ func GetPredictedVisitorsQuery(w http.ResponseWriter, r *http.Request, m model.R
 	to := vars["to"]
 
 	if isAuthorized(w, r, m, storeId) == true {
-		visitors := m.GetVisitorsForPredictionView(from, to, storeId)
 		response := simplejson.New()
 		response.Set("success", true)
-		response.Set("visitors", visitors)
+		if _, errFrom := strconv.Atoi(from); errFrom == nil {
+			query := `from(bucket:"` + storeId + `") 
+				|> range(start:-` + from + `mo, stop:` + to + `mo)
+				|> filter(fn: (r) => (r._measurement == "visitors" and r._field == "value"))`
+			data, errInf := i.GetInfluxQuery(query, os.Getenv("INFLUX_ORGANIZATION"))
+			var influxResponse []InfluxResponse
+			if errInf == nil && data != nil {
+				for data.Next() {
+					influxResponse = append(influxResponse, InfluxResponse{
+						fmt.Sprint(data.Record().ValueByKey("daysToMeasurement")),
+						fmt.Sprint(data.Record().Value()),
+						data.Record().Time().String()})
+				}
+			}
+			response.Set("prediction", influxResponse)
+		} else {
+			visitors := m.GetVisitorsForPredictionView(from, to, storeId)
+			response.Set("visitors", visitors)
+		}
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf("Marshall response: " + err.Error())
+			log.Println("Marshall response: " + err.Error())
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -134,7 +151,7 @@ func GetPredictedOrders(w http.ResponseWriter, r *http.Request, m model.Reposito
 				|> filter(fn: (r) => (r._measurement == "order" and (r._field == "value" or r._field == "saoa")))`
 		data, errInf := i.GetInfluxData(query, os.Getenv("INFLUX_ORGANIZATION"))
 		if errInf != nil {
-			log.Printf(errInf.Error())
+			log.Print(errInf.Error())
 			return
 		}
 		// prepare data to response
@@ -144,7 +161,7 @@ func GetPredictedOrders(w http.ResponseWriter, r *http.Request, m model.Reposito
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -182,7 +199,7 @@ func GetPredictedOrdersQuery(w http.ResponseWriter, r *http.Request, m model.Rep
 				|> filter(fn: (r) => (r._measurement == "order" and (r._field == "value" or r._field == "saoa")))`
 		data, errInf := i.GetInfluxQuery(query, os.Getenv("INFLUX_ORGANIZATION"))
 		if errInf != nil {
-			log.Printf(errInf.Error())
+			log.Print(errInf.Error())
 			return
 		}
 
@@ -219,7 +236,7 @@ func GetPredictedOrdersQuery(w http.ResponseWriter, r *http.Request, m model.Rep
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -258,7 +275,7 @@ func GetPredictedProducts(w http.ResponseWriter, r *http.Request, m model.Reposi
 				|> filter(fn: (r) => (r._measurement == "` + productCode + `" and (r._field == "value")))`
 		data, errInf := i.GetInfluxData(query, os.Getenv("INFLUX_ORGANIZATION"))
 		if errInf != nil {
-			log.Printf(errInf.Error())
+			log.Print(errInf.Error())
 			return
 		}
 		// prepare data to response
@@ -268,7 +285,7 @@ func GetPredictedProducts(w http.ResponseWriter, r *http.Request, m model.Reposi
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -307,7 +324,7 @@ func GetPredictedProductsQuery(w http.ResponseWriter, r *http.Request, m model.R
 				|> filter(fn: (r) => (r._measurement == "` + productCode + `" and (r._field == "value")))`
 		data, errInf := i.GetInfluxQuery(query, os.Getenv("INFLUX_ORGANIZATION"))
 		if errInf != nil {
-			log.Printf(errInf.Error())
+			log.Print(errInf.Error())
 			return
 		}
 
@@ -332,7 +349,7 @@ func GetPredictedProductsQuery(w http.ResponseWriter, r *http.Request, m model.R
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -384,7 +401,7 @@ func GetStats(w http.ResponseWriter, r *http.Request, m model.Repository, i mode
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 

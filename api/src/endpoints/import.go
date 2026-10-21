@@ -39,7 +39,7 @@ func ImportWarehouse(w http.ResponseWriter, r *http.Request, m model.Repository)
 		file, handle, err := r.FormFile("importFile")
 
 		if err != nil {
-			log.Printf("From file: " + err.Error())
+			log.Println("From file: " + err.Error())
 		}
 
 		defer file.Close()
@@ -61,7 +61,7 @@ func ImportWarehouse(w http.ResponseWriter, r *http.Request, m model.Repository)
 		f, err := excelize.OpenFile(handle.Filename)
 
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 
 		// Get all the rows in the Sheet1.
@@ -88,7 +88,7 @@ func ImportWarehouse(w http.ResponseWriter, r *http.Request, m model.Repository)
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -121,7 +121,7 @@ func ImportInvoices(w http.ResponseWriter, r *http.Request, m model.Repository) 
 		file, handle, err := r.FormFile("importFile")
 
 		if err != nil {
-			log.Printf("From file: " + err.Error())
+			log.Println("From file: " + err.Error())
 		}
 
 		defer file.Close()
@@ -143,7 +143,7 @@ func ImportInvoices(w http.ResponseWriter, r *http.Request, m model.Repository) 
 		f, err := excelize.OpenFile(handle.Filename)
 
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 
 		// Get all the rows in the Sheet1.
@@ -165,7 +165,7 @@ func ImportInvoices(w http.ResponseWriter, r *http.Request, m model.Repository) 
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 

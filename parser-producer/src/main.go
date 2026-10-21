@@ -30,7 +30,7 @@ func produce(m model.Repository, publisher *rabbitmq.Publisher) {
 				rabbitmq.WithPublishOptionsContentType("application/json"),
 			)
 			if err != nil {
-				log.Printf(err.Error())
+				log.Print(err)
 				return
 			}
 		}

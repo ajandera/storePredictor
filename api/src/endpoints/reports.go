@@ -70,21 +70,21 @@ func generatePDF(data *ReportData, lang string, filename string) error {
 	// use Go's default HTML template generation tools to generate your HTML
 	exePath, _ := filepath.Abs("./")
 	if templ, err = template.ParseFiles(exePath + "/templates/" + lang + "/pdfReport.html"); err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return err
 	}
 
 	// apply the parsed HTML template data and keep the result in a Buffer
 	var body bytes.Buffer
 	if err = templ.Execute(&body, data); err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return err
 	}
 
 	// initalize a wkhtmltopdf generator
 	pdfg, err := wkhtmltopdf.NewPDFGenerator()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return err
 	}
 
@@ -107,14 +107,14 @@ func generatePDF(data *ReportData, lang string, filename string) error {
 	// magic
 	err = pdfg.Create()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return err
 	}
 
 	name := exePath + "/temp/" + filename
 	errWrite := pdfg.WriteFile(name)
 	if errWrite != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 	}
 	return nil
 }
@@ -147,7 +147,7 @@ func GetPDF(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		response.Set("report", filename)
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -179,7 +179,7 @@ func generatePDFReport(date string, storeId string, lang string, m model.Reposit
 	filename := store.Url + "_report_" + date + ".pdf"
 	err := generatePDF(&data, lang, filename)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return ""
 	}
 	return filename
@@ -211,7 +211,7 @@ func GetExcel(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		response.Set("report", filename)
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -270,21 +270,20 @@ func GetExcelFull(w http.ResponseWriter, r *http.Request, m model.Repository, i 
 
 	vars := mux.Vars(r)
 	storeId := vars["storeId"]
-	//if isAuthorized(w, r, m, storeId) == true {
-	response := simplejson.New()
-	response.Set("success", true)
-	filename := GenerateExcelFull(storeId, m, i)
-	response.Set("report", filename)
-	payload, err := response.MarshalJSON()
-	if err != nil {
-		log.Printf(err.Error())
-		return
+	if isAuthorized(w, r, m, storeId) == true {
+		response := simplejson.New()
+		response.Set("success", true)
+		filename := GenerateExcelFull(storeId, m, i)
+		response.Set("report", filename)
+		payload, err := response.MarshalJSON()
+		if err != nil {
+			log.Print(err.Error())
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(payload)
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(payload)
-
-	//}
 }
 
 // GenerateExcelFull function to generate full excel with predicted data
@@ -302,7 +301,7 @@ func GenerateExcelFull(storeId string, m model.Repository, i model.Influx) strin
 				|> filter(fn: (r) => (r._measurement == "order" and (r._field == "value")))`
 	data, errInf := i.GetInfluxQuery(query, os.Getenv("INFLUX_ORGANIZATION"))
 	if errInf != nil {
-		log.Printf(errInf.Error())
+		log.Print(errInf.Error())
 		return ""
 	}
 
@@ -342,7 +341,7 @@ func GenerateExcelFull(storeId string, m model.Repository, i model.Influx) strin
 				|> filter(fn: (r) => (r._measurement == "` + prod.ProductCode + `" and (r._field == "value")))`
 		dataProducts, errInfProd := i.GetInfluxQuery(queryProducts, os.Getenv("INFLUX_ORGANIZATION"))
 		if errInfProd != nil {
-			log.Printf(errInf.Error())
+			log.Print(errInf.Error())
 			return ""
 		}
 
@@ -355,7 +354,7 @@ func GenerateExcelFull(storeId string, m model.Repository, i model.Influx) strin
 			}
 			// Access data and store  d03
 			if fmt.Sprint(dataProducts.Record().ValueByKey("daysToMeasurement")) == "d03" {
-				log.Printf(prod.ProductCode)
+				log.Println(prod.ProductCode)
 				influxResponseProd = append(influxResponseProd, InfluxResponseProduct{
 					fmt.Sprint(dataProducts.Record().ValueByKey("daysToMeasurement")),
 					fmt.Sprint(dataProducts.Record().Value()),
@@ -420,7 +419,7 @@ func ShareReport(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		err := json.NewDecoder(r.Body).Decode(&share)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -443,7 +442,7 @@ func ShareReport(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 

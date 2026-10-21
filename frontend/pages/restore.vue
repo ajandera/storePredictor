@@ -33,7 +33,7 @@
         />
       </v-form>
       <br />
-      <NuxtLink to="sing">Back to login page.</NuxtLink>
+      <NuxtLink to="/sign">Back to login page.</NuxtLink>
     </div>
   </v-container>
 </template>
@@ -94,7 +94,7 @@ export default class RestorePage extends Vue {
           this.updateShow(true);
           this.toggleSpinner(false);
         } else {
-          this.updateText(response.data.message);
+          this.updateText(response.data.error || response.data.message);
           this.updateColor("red");
           this.updateShow(true);
           this.toggleSpinner(false);

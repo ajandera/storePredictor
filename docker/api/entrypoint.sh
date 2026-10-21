@@ -1,3 +1,3 @@
 #!/bin/bash
-cd /application/ && go run main;
+cd /application/ && go run .;
 tail -f /dev/null;

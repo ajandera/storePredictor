@@ -123,8 +123,8 @@
       <p>Google, Facebook, linkedin</p>
       <v-col cols="12" align="right" class="mt-5">
         <v-menu bottom origin="center center" transition="scale-transition">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn color="secondary" dark v-bind="attrs" v-on="on">
+          <template v-slot:activator="{ props }">
+            <v-btn color="secondary" dark v-bind="props">
               <country-flag
                 :country="$i18n.locale.replace('en', 'us').replace('cs', 'cz')"
                 size="small"

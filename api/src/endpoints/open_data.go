@@ -26,9 +26,12 @@ func GetOpenData(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		return
 	}
 
-	//if isAuthorized(w, r) == true {
 	vars := mux.Vars(r)
 	storeId := vars["storeId"]
+
+	if !isAuthorized(w, r, m, storeId) {
+		return
+	}
 
 	// Try to decode the request body into the struct. If there is an error,
 	// respond to the client with the error message and a 400 status code.
@@ -43,7 +46,7 @@ func GetOpenData(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 	payload, err := response.MarshalJSON()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return
 	}
 
@@ -67,7 +70,7 @@ func AddOpenData(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if _, ok := authenticate(w, r); ok {
 		// Declare a new Visitor struct.
 		var openData od.OpenData
 
@@ -76,7 +79,11 @@ func AddOpenData(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		err := json.NewDecoder(r.Body).Decode(&openData)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			log.Printf(err.Error())
+			log.Print(err)
+			return
+		}
+
+		if !isAuthorized(w, r, m, openData.StoreRefer) {
 			return
 		}
 
@@ -87,7 +94,7 @@ func AddOpenData(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 
 		w.Header().Set("Content-Type", "application/json")

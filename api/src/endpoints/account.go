@@ -2,25 +2,18 @@ package endpoints
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	a "main/structs/account"
 	structs "main/structs/pw"
 	"main/utils"
-	"math/rand"
 	"net/http"
-	"strings"
-	"time"
 
 	model "github.com/ajandera/sp_model"
 	"github.com/ajandera/sp_model/rdbsClientInfo"
 
 	"github.com/bitly/go-simplejson"
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 )
-
-var mySigningKey = []byte("DFGDFGhcsadkjhfwe+ě+23123asldxjhsdljfh1234234")
 
 // AccountMe function to handle API requests to logged user
 
@@ -38,22 +31,14 @@ func AccountMe(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
-		var sendToken = strings.Replace(r.Header["Authorization"][0], "Bearer ", "", 1)
-		token, err := jwt.Parse(sendToken, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("JWT token not pass")
-			}
-			return mySigningKey, nil
-		})
-		claims := token.Claims.(jwt.MapClaims)
+	if accountId, ok := authenticate(w, r); ok {
 		response := simplejson.New()
 		response.Set("success", true)
-		response.Set("user", m.GetAccountById(fmt.Sprintf("%v", claims["id"])))
+		response.Set("user", utils.PublicAccount(m.GetAccountById(accountId)))
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err)
 			return
 		}
 
@@ -79,14 +64,18 @@ func GetAccounts(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if callerId, ok := authenticate(w, r); ok {
+		// only accounts of the caller's tenant (main account + its child accounts)
+		owner := tenantOwner(m.GetAccountById(callerId))
+		accounts := append([]rdbsClientInfo.Accounts{m.GetAccountById(owner)}, m.GetChildAccountById(owner)...)
+
 		response := simplejson.New()
 		response.Set("success", true)
-		response.Set("accounts", m.GetAccounts())
+		response.Set("accounts", utils.PublicAccounts(accounts))
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err)
 			return
 		}
 
@@ -112,31 +101,33 @@ func SendNewPw(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		return
 	}
 
-	rand.Seed(time.Now().Unix())
-	minSpecialChar := 1
-	minNum := 1
-	minUpperCase := 1
-	passwordLength := 8
-	token := utils.GeneratePassword(passwordLength, minSpecialChar, minNum, minUpperCase)
-
 	vars := mux.Vars(r)
 	accountId := vars["accountId"]
 	lang := vars["lang"]
 
 	account := m.GetAccountById(accountId)
-	m.SetRestorePw(
-		account.Id.String(),
-		token)
+	if utils.IsValidUUID(account.Id.String()) {
+		// signed, URL-safe restore token valid for 24 hours
+		token, err := utils.GenerateRestoreToken(account.Id.String())
+		if err != nil {
+			log.Print(err)
+			utils.WriteJSONError(w, http.StatusInternalServerError, "Unable to generate token.")
+			return
+		}
+		m.SetRestorePw(
+			account.Id.String(),
+			token)
 
-	var attachments []string
-	utils.SendEmailWithTemplate(account.Email, "Recover your password", lang+"/forgot", token, attachments)
+		var attachments []string
+		utils.SendEmailWithTemplate(account.Email, "Recover your password", lang+"/forgot", token, attachments)
+	}
 
 	response := simplejson.New()
 	response.Set("success", true)
 
 	payload, err := response.MarshalJSON()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return
 	}
 
@@ -171,11 +162,21 @@ func Accounts(w http.ResponseWriter, r *http.Request, m model.Repository) {
 	// Try to decode the request body into the struct. If there is an error,
 	// respond to the client with the error message and a 400 status code.
 	err := json.NewDecoder(r.Body).Decode(&account)
-	if err != nil || len(account.Email) == 0 {
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		log.Printf(err.Error())
+		log.Print(err)
 		return
 	}
+	if len(account.Email) == 0 || len(account.Password) <= 6 {
+		http.Error(w, "Email and password (min. 7 characters) are required.", http.StatusBadRequest)
+		return
+	}
+	// public registration always creates a main account: the parent, role and plan
+	// can't be chosen by the client (otherwise anybody could join a foreign tenant)
+	account.Parent = ""
+	account.Role = ""
+	account.PaidTo = ""
+	account.PlanRefer = ""
 
 	response := simplejson.New()
 	check := m.GetAccountByEmail(account.Email)
@@ -184,7 +185,7 @@ func Accounts(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		response.Set("message", "Email already registered")
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -206,7 +207,8 @@ func Accounts(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Fatalf(err.Error())
+			log.Print(err)
+			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -232,7 +234,7 @@ func UpdateAccounts(w http.ResponseWriter, r *http.Request, m model.Repository) 
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if callerId, ok := authenticate(w, r); ok {
 		// Declare a new Visitor struct.
 		var account a.Account
 
@@ -241,7 +243,40 @@ func UpdateAccounts(w http.ResponseWriter, r *http.Request, m model.Repository) 
 		err := json.NewDecoder(r.Body).Decode(&account)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			log.Printf(err.Error())
+			log.Print(err)
+			return
+		}
+
+		// plan and payment are never changed through this endpoint
+		account.PaidTo = ""
+		account.PlanRefer = ""
+
+		switch {
+		case account.ID == "":
+			// new child account (user) of the logged main account
+			caller := m.GetAccountById(callerId)
+			if caller.Parent != "" {
+				denyAccess(w)
+				return
+			}
+			if len(account.Email) == 0 || len(account.Password) <= 6 {
+				http.Error(w, "Email and password (min. 7 characters) are required.", http.StatusBadRequest)
+				return
+			}
+			if utils.IsValidUUID(m.GetAccountByEmail(account.Email).Id.String()) {
+				utils.WriteJSONError(w, http.StatusConflict, "Email already registered")
+				return
+			}
+			account.Parent = callerId
+		case account.ID == callerId:
+			// own profile: role and parent can't be changed by the account itself
+			account.Role = ""
+			account.Parent = ""
+		case canManageAccount(m, callerId, account.ID):
+			// child account managed by the caller, it can't be moved to other parent
+			account.Parent = ""
+		default:
+			denyAccess(w)
 			return
 		}
 
@@ -253,7 +288,7 @@ func UpdateAccounts(w http.ResponseWriter, r *http.Request, m model.Repository) 
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -278,7 +313,7 @@ func DeleteAccounts(w http.ResponseWriter, r *http.Request, m model.Repository) 
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if callerId, ok := authenticate(w, r); ok {
 		vars := mux.Vars(r)
 		accountId := vars["accountId"]
 
@@ -286,6 +321,10 @@ func DeleteAccounts(w http.ResponseWriter, r *http.Request, m model.Repository) 
 		// respond to the client with the error message and a 400 status code.
 		if len(accountId) <= 0 {
 			http.Error(w, "Account id not  send.", http.StatusBadRequest)
+			return
+		}
+		if !canManageAccount(m, callerId, accountId) {
+			denyAccess(w)
 			return
 		}
 
@@ -332,7 +371,19 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request, m model.Repository) 
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		log.Printf(err.Error())
+		log.Print(err)
+		return
+	}
+
+	// the token must be a valid (signed, not expired) restore token and it must be
+	// the last token issued for the account (it is removed after the first use)
+	accountId, err := utils.ParseToken(refreshToken, utils.TokenTypeRestore)
+	if err != nil || m.GetAccountById(accountId).RestoreToken != refreshToken {
+		utils.WriteJSONError(w, http.StatusBadRequest, "Restore token is not valid or expired.")
+		return
+	}
+	if len(t.Password) <= 6 {
+		utils.WriteJSONError(w, http.StatusBadRequest, "Password must have at least 7 characters.")
 		return
 	}
 
@@ -342,7 +393,7 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request, m model.Repository) 
 
 	payload, err := response.MarshalJSON()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -371,13 +422,19 @@ func GetAccountOrders(w http.ResponseWriter, r *http.Request, m model.Repository
 	accountId := vars["accountId"]
 
 	if isAuthorized(w, r, m, storeId) == true {
+		callerId, _ := utils.ParseToken(utils.BearerToken(r), utils.TokenTypeAccess)
+		if !canViewAccount(m, callerId, accountId) {
+			denyAccess(w)
+			return
+		}
+
 		response := simplejson.New()
 		response.Set("success", true)
 		response.Set("orders", m.GetAccountOrders(accountId))
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err)
 			return
 		}
 
@@ -392,7 +449,8 @@ func GetAccountOrders(w http.ResponseWriter, r *http.Request, m model.Repository
 // GET
 // @tags Account
 // @Summary Endpoint to get account by email
-// @Description Endpoint to get account by email
+// @Description Endpoint to get account by email. Public endpoint, it returns only the account id
+// @Description (zero UUID when email is not registered), never the account data.
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} a.Account
@@ -408,49 +466,18 @@ func GetAccountByEmail(w http.ResponseWriter, r *http.Request, m model.Repositor
 
 	response := simplejson.New()
 	response.Set("success", true)
-	response.Set("account", m.GetAccountByEmail(email))
+	// the endpoint is public (forgot password, user existence check), expose the id only
+	response.Set("account", map[string]string{"Id": m.GetAccountByEmail(email).Id.String()})
 
 	payload, err := response.MarshalJSON()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(payload)
-}
-
-// isAuthorized function to check jwt token in request
-func isAuthorized(w http.ResponseWriter, r *http.Request, m model.Repository, storeId string) bool {
-	if r.Header["Authorization"] != nil {
-		var sendToken = strings.Replace(r.Header["Authorization"][0], "Bearer ", "", 1)
-		token, err := jwt.Parse(sendToken, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("JWT token not pass")
-			}
-			return mySigningKey, nil
-		})
-
-		// check if store belongs to account
-		if utils.IsValidUUID(storeId) {
-			claims := token.Claims.(jwt.MapClaims)
-			if m.IsPermitted(fmt.Sprintf("%v", claims["id"]), storeId) == false {
-				http.Error(w, "Not Permitted", http.StatusForbidden)
-				return false
-			}
-		}
-
-		if err != nil && token != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			log.Printf(err.Error())
-			return false
-		}
-		return true
-	} else {
-		http.Error(w, "Not Authorized", http.StatusForbidden)
-		return false
-	}
 }
 
 // GET
@@ -470,14 +497,19 @@ func GetAccount(w http.ResponseWriter, r *http.Request, m model.Repository) {
 	vars := mux.Vars(r)
 	accountId := vars["accountId"]
 
-	if isAuthorized(w, r, m, "") == true {
+	if callerId, ok := authenticate(w, r); ok {
+		if !canViewAccount(m, callerId, accountId) {
+			denyAccess(w)
+			return
+		}
+
 		response := simplejson.New()
 		response.Set("success", true)
-		response.Set("account", m.GetAccountById(accountId))
+		response.Set("account", utils.PublicAccount(m.GetAccountById(accountId)))
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err)
 			return
 		}
 
@@ -506,13 +538,66 @@ func GetChildAccount(w http.ResponseWriter, r *http.Request, m model.Repository)
 	vars := mux.Vars(r)
 	id := vars["id"]
 
+	callerId, ok := authenticate(w, r)
+	if !ok {
+		return
+	}
+	if !canViewAccount(m, callerId, id) {
+		denyAccess(w)
+		return
+	}
+
 	response := simplejson.New()
 	response.Set("success", true)
-	response.Set("accounts", m.GetChildAccountById(id))
+	response.Set("accounts", utils.PublicAccounts(m.GetChildAccountById(id)))
 
 	payload, err := response.MarshalJSON()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(payload)
+}
+
+// GetPlans function to handle API requests to get all plans from database
+func GetPlans(w http.ResponseWriter, r *http.Request, m model.Repository) {
+	utils.SetupCORS(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
+
+	response := simplejson.New()
+	response.Set("success", true)
+	response.Set("plans", m.GetPlans())
+
+	payload, err := response.MarshalJSON()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(payload)
+}
+
+// GetPaidPlans function to handle API requests to get paid plans from database
+func GetPaidPlans(w http.ResponseWriter, r *http.Request, m model.Repository) {
+	utils.SetupCORS(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
+
+	response := simplejson.New()
+	response.Set("success", true)
+	response.Set("plans", m.GetPaidPlans())
+
+	payload, err := response.MarshalJSON()
+	if err != nil {
+		log.Print(err)
 		return
 	}
 

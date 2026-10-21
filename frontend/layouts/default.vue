@@ -21,8 +21,8 @@
         >
           <v-list-item-action>
             <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon v-bind="attrs" v-on="on">{{ item.icon }}</v-icon>
+              <template v-slot:activator="{ props }">
+                <v-icon v-bind="props">{{ item.icon }}</v-icon>
               </template>
               <span>{{ $t(item.title) }}</span>
             </v-tooltip>
@@ -43,10 +43,9 @@
       <img src="/sp_logo.svg" class="sp d-none d-sm-flex" />
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-tooltip bottom>
-        <template v-slot:activator="{ on, attrs }" class="d-none d-sm-flex">
+        <template v-slot:activator="{ props }" class="d-none d-sm-flex">
           <v-btn
-            v-bind="attrs"
-            v-on="on"
+            v-bind="props"
             icon
             @click.stop="miniVariant = !miniVariant"
           >
@@ -59,15 +58,14 @@
       </v-tooltip>
       <v-divider vertical class="d-none d-sm-flex"></v-divider>
       <v-dialog v-model="dialogCr" max-width="500px">
-        <template v-slot:activator="{ on: dialogCr, attrs }">
+        <template v-slot:activator="{ props: dialogCrProps }">
           <v-tooltip bottom class="d-none d-md-flex">
             <template
-              v-slot:activator="{ on: crHelp, attrs }"
+              v-slot:activator="{ props: crHelpProps }"
               class="d-none d-sm-flex"
             >
               <v-col
-                v-bind="attrs"
-                v-on="{ ...crHelp, ...dialogCr }"
+                v-bind="{ ...dialogCrProps, ...crHelpProps }"
                 class="inf d-none d-md-flex clickable"
                 cols="1"
                 >
@@ -105,15 +103,14 @@
       </v-dialog>
       <v-divider class="d-none d-sm-flex" vertical></v-divider>
       <v-dialog v-model="dialogLead" max-width="500px">
-        <template v-slot:activator="{ on: dialogLead, attrs }">
+        <template v-slot:activator="{ props: dialogLeadProps }">
           <v-tooltip bottom class="d-none d-md-flex">
             <template
-              v-slot:activator="{ on: leadHelp, attrs }"
+              v-slot:activator="{ props: leadHelpProps }"
               class="d-none d-sm-flex"
             >
               <v-col
-                v-bind="attrs"
-                v-on="{ ...leadHelp, ...dialogLead }"
+                v-bind="{ ...dialogLeadProps, ...leadHelpProps }"
                 class="inf d-none d-md-flex clickable"
                 cols="1"
                 >
@@ -151,15 +148,14 @@
       </v-dialog>
       <v-divider vertical></v-divider>
       <v-dialog v-model="dialogR2" max-width="500px">
-        <template v-slot:activator="{ on: dialogR2, attrs }">
+        <template v-slot:activator="{ props: dialogR2Props }">
           <v-tooltip bottom class="d-none d-md-flex">
             <template
-              v-slot:activator="{ on: r2Help, attrs }"
+              v-slot:activator="{ props: r2HelpProps }"
               class="d-none d-sm-flex"
             >
               <v-col
-                v-bind="attrs"
-                v-on="{ ...r2Help, ...dialogR2 }"
+                v-bind="{ ...dialogR2Props, ...r2HelpProps }"
                 class="inf d-none d-md-flex clickable"
                 cols="1"
                 >
@@ -204,12 +200,11 @@
         transition="scale-transition"
         v-if="actualStore !== null"
       >
-        <template v-slot:activator="{ on, attrs }">
+        <template v-slot:activator="{ props }">
           <v-btn
             color="secondary d-none d-sm-flex"
             dark
-            v-bind="attrs"
-            v-on="on"
+            v-bind="props"
           >
             {{ actualStore.name }}
           </v-btn>
@@ -226,12 +221,11 @@
         </v-list>
       </v-menu>
       <v-menu bottom origin="center center" transition="scale-transition">
-        <template v-slot:activator="{ on, attrs }">
+        <template v-slot:activator="{ props }">
           <v-btn
             color="secondary d-none d-sm-flex"
             dark
-            v-bind="attrs"
-            v-on="on"
+            v-bind="props"
           >
             <country-flag
               :country="$i18n.locale.replace('en', 'us')"
@@ -255,10 +249,10 @@
         </v-list>
       </v-menu>
       <v-dialog v-model="dialogExcel" persistent max-width="600px">
-        <template v-slot:activator="{ on: dialog, attrs }">
+        <template v-slot:activator="{ props: dialogProps }">
           <v-tooltip bottom>
-            <template v-slot:activator="{ on: tooltip }">
-              <v-btn icon v-bind="attrs" v-on="{ ...tooltip, ...dialog }">
+            <template v-slot:activator="{ props: tooltipProps }">
+              <v-btn icon v-bind="{ ...dialogProps, ...tooltipProps }">
                 <v-icon>mdi-file-excel</v-icon>
               </v-btn>
             </template>
@@ -281,14 +275,13 @@
                     offset-y
                     min-width="auto"
                   >
-                    <template v-slot:activator="{ on, attrs }">
+                    <template v-slot:activator="{ props }">
                       <v-text-field
                         v-model="date"
                         :label="$t('index.dateToStore')"
                         prepend-icon="mdi-calendar"
                         readonly
-                        v-bind="attrs"
-                        v-on="on"
+                        v-bind="props"
                         class="pt-5 mr-2"
                       ></v-text-field>
                     </template>
@@ -313,10 +306,10 @@
         </v-card>
       </v-dialog>
       <v-dialog v-model="dialogPdf" persistent max-width="600px">
-        <template v-slot:activator="{ on: dialog, attrs }">
+        <template v-slot:activator="{ props: dialogProps }">
           <v-tooltip bottom>
-            <template v-slot:activator="{ on: tooltip, attrs }">
-              <v-btn icon v-bind="attrs" v-on="{ ...tooltip, ...dialog }">
+            <template v-slot:activator="{ props: tooltipProps }">
+              <v-btn icon v-bind="{ ...dialogProps, ...tooltipProps }">
                 <v-icon>mdi-file-pdf-box</v-icon>
               </v-btn>
             </template>
@@ -339,14 +332,13 @@
                     offset-y
                     min-width="auto"
                   >
-                    <template v-slot:activator="{ on, attrs }">
+                    <template v-slot:activator="{ props }">
                       <v-text-field
                         v-model="date"
                         :label="$t('index.dateToStore')"
                         prepend-icon="mdi-calendar"
                         readonly
-                        v-bind="attrs"
-                        v-on="on"
+                        v-bind="props"
                         class="pt-5 mr-2"
                       ></v-text-field>
                     </template>
@@ -371,10 +363,10 @@
         </v-card>
       </v-dialog>
       <v-dialog v-model="shareDialog" persistent max-width="600px">
-        <template v-slot:activator="{ on: shareDialog, attrs }">
+        <template v-slot:activator="{ props: shareDialogProps }">
           <v-tooltip bottom>
-            <template v-slot:activator="{ on: tooltip, attrs }">
-              <v-btn icon v-on="{ ...tooltip, ...shareDialog }">
+            <template v-slot:activator="{ props: tooltipProps }">
+              <v-btn icon v-bind="{ ...shareDialogProps, ...tooltipProps }">
                 <v-icon>mdi-export-variant</v-icon>
               </v-btn>
             </template>
@@ -404,14 +396,13 @@
                     offset-y
                     min-width="auto"
                   >
-                    <template v-slot:activator="{ on, attrs }">
+                    <template v-slot:activator="{ props }">
                       <v-text-field
                         v-model="shareDate"
                         :label="$t('index.dateToStore')"
                         prepend-icon="mdi-calendar"
                         readonly
-                        v-bind="attrs"
-                        v-on="on"
+                        v-bind="props"
                         class="pt-5 mr-2"
                       ></v-text-field>
                     </template>
@@ -448,8 +439,8 @@
         </v-card>
       </v-dialog>
       <v-tooltip bottom>
-        <template v-slot:activator="{ on, attrs }">
-          <div v-bind="attrs" v-on="on">
+        <template v-slot:activator="{ props }">
+          <div v-bind="props">
             <v-switch
               class="pt-5"
               v-model="dark"
@@ -460,8 +451,8 @@
         <span>{{ $t("tooltips.template") }}</span>
       </v-tooltip>
       <v-tooltip bottom>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click.stop="logOut()" v-bind="attrs" v-on="on">
+        <template v-slot:activator="{ props }">
+          <v-btn icon @click.stop="logOut()" v-bind="props">
             <v-icon>mdi-export</v-icon>
           </v-btn>
         </template>
@@ -470,7 +461,7 @@
     </v-app-bar>
     <v-main>
       <v-container fluid id="scrolling-techniques">
-        <NuxtChild :store="actualStore" />
+        <NuxtPage :store="actualStore" />
       </v-container>
     </v-main>
     <v-footer :absolute="fixed" app>
@@ -481,12 +472,11 @@
         transition="scale-transition"
         v-if="actualStore !== null"
       >
-        <template v-slot:activator="{ on, attrs }">
+        <template v-slot:activator="{ props }">
           <v-btn
             color="secondary d-flex d-sm-none"
             dark
-            v-bind="attrs"
-            v-on="on"
+            v-bind="props"
           >
             {{ actualStore.name }}
           </v-btn>
@@ -503,12 +493,11 @@
         </v-list>
       </v-menu>
       <v-menu bottom origin="center center" transition="scale-transition">
-        <template v-slot:activator="{ on, attrs }">
+        <template v-slot:activator="{ props }">
           <v-btn
             color="secondary d-flex d-sm-none"
             dark
-            v-bind="attrs"
-            v-on="on"
+            v-bind="props"
           >
             <country-flag
               :country="$i18n.locale.replace('en', 'us')"
@@ -550,7 +539,6 @@ import { namespace } from "vuex-class";
 import IDictionary from "~/model/IDictionary";
 import IResponseText from "~/model/IResponseText";
 import Upgrade from "~/components/Upgrade.vue";
-import { JSX } from "@babel/types";
 import IPlan from "~/model/IPlan";
 const snackbar = namespace("Snackbar");
 const spinner = namespace("Spinner");
@@ -822,7 +810,7 @@ export default class DefaultLayout extends Vue {
       .then((response: any) => {
         if (response.data.success === true && response.data.report.length > 0) {
           const url =
-            this.$config.partnerApi.replace("v1", "public") +
+            this.$config.partnerApi.replace("v1", "files") +
             response.data.report;
           window.open(url, "_blank");
         } else {
@@ -839,7 +827,7 @@ export default class DefaultLayout extends Vue {
       .then((response: any) => {
         if (response.data.success === true && response.data.report.length > 0) {
           const url =
-            this.$config.partnerApi.replace("v1", "public") +
+            this.$config.partnerApi.replace("v1", "files") +
             response.data.report;
           window.open(url, "_blank");
         } else {

@@ -1,10 +1,10 @@
-package main_test
+package endpoints_test
 
 import (
 	"fmt"
 	"io"
 	"log"
-	endpoints "main/endpoints"
+	"main/endpoints"
 	"net/http"
 	"net/http/httptest"
 	"testing"

@@ -38,7 +38,7 @@ func GetSuppliers(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -66,7 +66,7 @@ func GetSupplierDetail(w http.ResponseWriter, r *http.Request, m model.Repositor
 
 	vars := mux.Vars(r)
 	supplierId := vars["supplierId"]
-	storeId := vars["storeId"]
+	storeId := supplierStore(m, supplierId)
 
 	if isAuthorized(w, r, m, storeId) == true {
 		response := simplejson.New()
@@ -75,7 +75,7 @@ func GetSupplierDetail(w http.ResponseWriter, r *http.Request, m model.Repositor
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -102,7 +102,7 @@ func CreateSupplier(w http.ResponseWriter, r *http.Request, m model.Repository) 
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if _, ok := authenticate(w, r); ok {
 		// Declare a new Visitor struct.
 		var supplier sp.Suppliers
 
@@ -111,7 +111,11 @@ func CreateSupplier(w http.ResponseWriter, r *http.Request, m model.Repository) 
 		err := json.NewDecoder(r.Body).Decode(&supplier)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			log.Printf(err.Error())
+			log.Print(err)
+			return
+		}
+
+		if !isAuthorized(w, r, m, supplier.StoreRefer) {
 			return
 		}
 
@@ -122,7 +126,7 @@ func CreateSupplier(w http.ResponseWriter, r *http.Request, m model.Repository) 
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -148,7 +152,7 @@ func CreateSupplierOrder(w http.ResponseWriter, r *http.Request, m model.Reposit
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if _, ok := authenticate(w, r); ok {
 		// Declare a new Visitor struct.
 		var order sp.Order
 
@@ -157,7 +161,7 @@ func CreateSupplierOrder(w http.ResponseWriter, r *http.Request, m model.Reposit
 		err := json.NewDecoder(r.Body).Decode(&order)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			log.Printf(err.Error())
+			log.Print(err)
 			return
 		}
 
@@ -167,7 +171,7 @@ func CreateSupplierOrder(w http.ResponseWriter, r *http.Request, m model.Reposit
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -201,11 +205,15 @@ func UpdateSupplier(w http.ResponseWriter, r *http.Request, m model.Repository) 
 	err := json.NewDecoder(r.Body).Decode(&supplier)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return
 	}
 
-	if isAuthorized(w, r, m, supplier.StoreRefer) == true {
+	storeId := supplierStore(m, supplier.Id)
+	if storeId == "" {
+		storeId = supplier.StoreRefer
+	}
+	if isAuthorized(w, r, m, storeId) == true {
 		response := simplejson.New()
 		m.UpdateSupplier(supplier.Id, supplier.Name, supplier.Street, supplier.City, supplier.Zip, supplier.Country, supplier.Email,
 			supplier.Phone, supplier.Person, supplier.Template, supplier.Subject)
@@ -213,7 +221,7 @@ func UpdateSupplier(w http.ResponseWriter, r *http.Request, m model.Repository) 
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -238,7 +246,7 @@ func DeleteSupplier(w http.ResponseWriter, r *http.Request, m model.Repository) 
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if callerId, ok := authenticate(w, r); ok {
 		vars := mux.Vars(r)
 		supplierId := vars["supplierId"]
 
@@ -249,13 +257,19 @@ func DeleteSupplier(w http.ResponseWriter, r *http.Request, m model.Repository) 
 			return
 		}
 
+		storeId := supplierStore(m, supplierId)
+		if !isAuthorized(w, r, m, storeId) {
+			return
+		}
+		_ = callerId
+
 		response := simplejson.New()
 		m.DeleteSupplier(supplierId)
 		response.Set("success", true)
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 
 		w.Header().Set("Content-Type", "application/json")

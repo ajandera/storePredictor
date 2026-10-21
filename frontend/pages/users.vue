@@ -14,7 +14,7 @@
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
               <v-dialog v-model="dialog" max-width="500px">
-                <template v-slot:activator="{ on, attrs }">
+                <template v-slot:activator="{ props }">
                   <Help
                     title="User Management"
                     keyString="help-userManagement"
@@ -23,8 +23,7 @@
                     color="primary"
                     dark
                     class="mb-2 mr-2"
-                    v-bind="attrs"
-                    v-on="on"
+                    v-bind="props"
                   >
                     {{ $t("users.add") }}
                   </v-btn>
@@ -68,7 +67,7 @@
                             <v-autocomplete
                               :items="countries"
                               :filter="customFilter"
-                              item-text="Name"
+                              item-title="Name"
                               item-value="Code"
                               :rules="[(v) => !!v || 'Item is required']"
                               :label="$t('stores.form.country')"
@@ -129,8 +128,8 @@
           <template v-slot:item.actions="{ item }">
             <v-btn-toggle rounded dense>
               <v-tooltip bottom>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn v-bind="attrs" v-on="on" @click="editItem(item)">
+                <template v-slot:activator="{ props }">
+                  <v-btn v-bind="props" @click="editItem(item)">
                     <v-icon small class="mr-2" color="secondary">
                       mdi-pencil
                     </v-icon>
@@ -139,8 +138,8 @@
                 <span>{{ $t("tooltips.edit") }}</span>
               </v-tooltip>
               <v-tooltip bottom>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn v-bind="attrs" v-on="on" @click="deleteItem(item)">
+                <template v-slot:activator="{ props }">
+                  <v-btn v-bind="props" @click="deleteItem(item)">
                     <v-icon small color="error"> mdi-delete </v-icon>
                   </v-btn>
                 </template>
@@ -161,10 +160,13 @@ import Account from "~/model/Account";
 import User from "~/model/User";
 import { namespace } from "vuex-class";
 import ICountry from "~/model/ICountry";
+import Help from "~/components/Help.vue";
 const snackbar = namespace("Snackbar");
 const spinner = namespace("Spinner");
 
-@Component
+@Component({
+  components: { Help },
+})
 export default class UsersPage extends Vue {
   @snackbar.Action
   public updateText!: (newText: string) => void;
@@ -300,10 +302,10 @@ export default class UsersPage extends Vue {
     } else {
       this.$axios
         .put(this.$config.internalApi + "accounts", {
-          Id: this.editedItem.id,
+          ID: this.editedItem.id,
           name: this.editedItem.name,
           email: this.editedItem.email,
-          countryCode: this.countryCode,
+          countryCode: this.editedItem.countryCode,
           password: this.password,
           role: this.editedItem.role,
         })

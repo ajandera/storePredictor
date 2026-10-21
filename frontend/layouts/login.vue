@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="12" sm="12" md="12" lq="12" xl="12" class="header">
         <v-container>
-          <Nuxt />
+          <NuxtPage />
         </v-container>
       </v-col>
     </v-row>

@@ -15,17 +15,15 @@
           ref="menuFrom"
           v-model="menuFrom"
           :close-on-content-click="false"
-          :return-value.sync="dateFrom"
           transition="scale-transition"
           offset-y
         >
-        <template v-slot:activator="{ on, attrs }">
+        <template v-slot:activator="{ props }">
           <v-text-field
             v-model="dateFrom"
             label="From"
             readonly
-            v-bind="attrs"
-            v-on="on"
+            v-bind="props"
           ></v-text-field>
         </template>
         <v-date-picker 
@@ -44,17 +42,15 @@
         ref="menuTo"
         v-model="menuTo"
         :close-on-content-click="false"
-        :return-value.sync="dateTo"
         transition="scale-transition"
         offset-y
       >
-        <template v-slot:activator="{ on, attrs }">
+        <template v-slot:activator="{ props }">
           <v-text-field
             v-model="dateTo"
             label="To"
             readonly
-            v-bind="attrs"
-            v-on="on"
+            v-bind="props"
           ></v-text-field>
         </template>
         <v-date-picker 
@@ -563,10 +559,11 @@ export default class TrackingPage extends Vue {
       .get("/prediction/query/visitors/" + storeId + "/" + dateFrom.toISOString().split('T')[0] + "/" + dateTo.toISOString().split('T')[0])
       .then((response: any) => {
         if (response.data.success === true) {
-          this.histVisit = response.data.visitors
+          const visitors = response.data.visitors || [];
+          this.histVisit = visitors
             .filter((item: any) => item.Tag === this.currentTag)
             .map((record: any) => [record.Day.split("T")[0], record.Visitors]);
-          this.tags = response.data.visitors
+          this.tags = visitors
             .filter((item: any) => item.Tag !== "")
             .map((record: any) => record.Tag).filter((x: any, i: any, a: any) => a.indexOf(x) === i);
           this.$refs.realtimeVisitors
@@ -589,11 +586,12 @@ export default class TrackingPage extends Vue {
       .get("/prediction/query/orders/" + storeId + "/" + from + "/"+ to)
       .then((response: any) => {
         if (response.data.success === true) {
+          const pred = response.data.prediction || [];
           const done = new Promise((resolve, reject) => {
-            this.histOrd = response.data.prediction
+            this.histOrd = pred
               .filter((item: any) => item.Index === "d0")
               .map((record: any) => [record.Date.split(" ")[0], record.Val]);
-            this.histInc = response.data.prediction
+            this.histInc = pred
               .filter((item: any) => item.Index === "d0")
               .map((record: any) => [
                 record.Date.split(" ")[0],

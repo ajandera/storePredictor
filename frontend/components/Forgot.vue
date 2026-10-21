@@ -39,13 +39,18 @@ export default class Forgot extends Vue {
   handleSubmit() {
     this.toggleSpinner(true);
     this.$axios.get(this.$config.internalApi + "account/email/"+this.email).then((response: any) => {
-      if (response.data.account.Id !== '') {
+      if (
+        response.data.account &&
+        response.data.account.Id &&
+        response.data.account.Id !== "" &&
+        response.data.account.Id !== "00000000-0000-0000-0000-000000000000"
+      ) {
           this.sendNewPassword(response.data.account.Id)
       } else {
         this.updateText(this.$i18n.t('signin.notReg'));
         this.updateColor('red');
         this.updateShow(true);
-        this.toggleSpinner(true);
+        this.toggleSpinner(false);
       }
     });
   }
@@ -55,11 +60,13 @@ export default class Forgot extends Vue {
       if (response.data.success === true) {
         this.updateText(this.$i18n.t('signin.pwSend'));
         this.updateColor('green');
+        this.updateShow(true);
+        this.toggleSpinner(false);
       } else {
-        this.updateText(response.data.message);
+        this.updateText(response.data.error || response.data.message);
         this.updateColor('red');
         this.updateShow(true);
-        this.toggleSpinner(true);
+        this.toggleSpinner(false);
       }
     });
   }

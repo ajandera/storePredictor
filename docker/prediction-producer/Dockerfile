@@ -1,7 +1,8 @@
-FROM golang:1.19-alpine
+FROM golang:alpine
 
-RUN apk add git
-RUN apk add openssh
-RUN git config --global url."git@gitlab.com:".insteadOf "https://gitlab.com/"
+RUN apk add --no-cache git bash openssh
 
-COPY ./entrypoint.sh /
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]

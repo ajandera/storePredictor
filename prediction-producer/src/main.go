@@ -8,8 +8,8 @@ import (
 	"github.com/bitly/go-simplejson"
 	_ "github.com/streadway/amqp"
 	"github.com/wagslane/go-rabbitmq"
-	"gitlab.com/storepredictor/model"
-	"gitlab.com/storepredictor/model/rdbsClientInfo"
+	model "github.com/ajandera/sp_model"
+	"github.com/ajandera/sp_model/rdbsClientInfo"
 )
 
 var stores []rdbsClientInfo.Stores
@@ -19,7 +19,21 @@ func produce(m model.Repository, publisher *rabbitmq.Publisher) {
 	// get all accounts
 	accounts := m.GetAccounts()
 	for _, account := range accounts {
-		plan := m.GetPlanById(account.PlanRefer)
+		// find latest order for account to get plan
+		orders := m.GetAccountOrders(account.Id.String())
+		var plan rdbsClientInfo.Plan
+		if len(orders) > 0 {
+			plan = m.GetPlanById(orders[len(orders)-1].PlanRefer)
+		} else {
+			// default to free plan if available, or check plans
+			plans := m.GetPlans()
+			for _, p := range plans {
+				if p.Free {
+					plan = p
+					break
+				}
+			}
+		}
 		if plan.Enabled == true {
 			stores = m.GetStoresByAccount(account.Id.String())
 			for _, store := range stores {
@@ -38,7 +52,7 @@ func produce(m model.Repository, publisher *rabbitmq.Publisher) {
 						rabbitmq.WithPublishOptionsContentType("application/json"),
 					)
 					if err != nil {
-						log.Printf(err.Error())
+						log.Print(err)
 						return
 					}
 				}

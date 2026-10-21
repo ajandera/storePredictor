@@ -69,6 +69,7 @@ frontend/.next
 
 # nuxt.js build output
 frontend/.nuxt
+frontend/.output
 
 # Nuxt generate
 frontend/dist

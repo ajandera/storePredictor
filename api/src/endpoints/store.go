@@ -26,13 +26,17 @@ func GetStoresByAccount(w http.ResponseWriter, r *http.Request, m model.Reposito
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if callerId, ok := authenticate(w, r); ok {
 		vars := mux.Vars(r)
 		accountId := vars["accountId"]
 		// Try to decode the request body into the struct. If there is an error,
 		// respond to the client with the error message and a 400 status code.
 		if len(accountId) <= 0 {
 			http.Error(w, "Missing account Id.", http.StatusBadRequest)
+			return
+		}
+		if !canViewAccount(m, callerId, accountId) {
+			denyAccess(w)
 			return
 		}
 
@@ -42,7 +46,7 @@ func GetStoresByAccount(w http.ResponseWriter, r *http.Request, m model.Reposito
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err)
 			return
 		}
 
@@ -67,7 +71,7 @@ func Stores(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if callerId, ok := authenticate(w, r); ok {
 		// Declare a new Visitor struct.
 		var store s.Stores
 
@@ -76,9 +80,12 @@ func Stores(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		err := json.NewDecoder(r.Body).Decode(&store)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			log.Printf(err.Error())
+			log.Print(err)
 			return
 		}
+
+		// stores always belong to the main account of the caller's tenant
+		store.AccountRefer = tenantOwner(m.GetAccountById(callerId))
 
 		response := simplejson.New()
 		const charset = "abcdefghijklmnopqrstuvwxyz" +
@@ -89,7 +96,7 @@ func Stores(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -121,11 +128,11 @@ func UpdateStores(w http.ResponseWriter, r *http.Request, m model.Repository) {
 	err := json.NewDecoder(r.Body).Decode(&store)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if isAuthorized(w, r, m, store.ID) == true {
 		response := simplejson.New()
 		m.EditStore(store.ID, store.CountryCode, store.Url, store.MaximalProductPrice, store.MinimalProductPrice,
 			store.ActualStorePower, store.ActualCustomerSatisfaction, store.PerceivedValue, store.ProductSell, false, store.Feed, store.Window)
@@ -133,7 +140,7 @@ func UpdateStores(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -159,7 +166,7 @@ func DeleteStores(w http.ResponseWriter, r *http.Request, m model.Repository) {
 	vars := mux.Vars(r)
 	storeId := vars["storeId"]
 
-	if isAuthorized(w, r, m, "") == true {
+	if isAuthorized(w, r, m, storeId) == true {
 		// Try to decode the request body into the struct. If there is an error,
 		// respond to the client with the error message and a 400 status code.
 		if len(storeId) <= 0 {
@@ -173,7 +180,7 @@ func DeleteStores(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -197,14 +204,15 @@ func GetStores(w http.ResponseWriter, r *http.Request, m model.Repository) {
 	if (*r).Method == "OPTIONS" {
 		return
 	}
-	if isAuthorized(w, r, m, "") == true {
+	if callerId, ok := authenticate(w, r); ok {
+		// only stores of the caller's tenant
 		response := simplejson.New()
 		response.Set("success", true)
-		response.Set("stores", m.GetStores())
+		response.Set("stores", m.GetStoresByAccount(tenantOwner(m.GetAccountById(callerId))))
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 

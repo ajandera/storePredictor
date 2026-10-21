@@ -207,6 +207,14 @@ func main() {
 		endpoints.UpgradeOrder(w, r, repository)
 	}).Methods(http.MethodPost, http.MethodOptions)
 
+	// plans
+	api.HandleFunc("/plans", func(w http.ResponseWriter, r *http.Request) {
+		endpoints.GetPlans(w, r, repository)
+	}).Methods(http.MethodGet, http.MethodOptions)
+	api.HandleFunc("/plans/paid", func(w http.ResponseWriter, r *http.Request) {
+		endpoints.GetPaidPlans(w, r, repository)
+	}).Methods(http.MethodGet, http.MethodOptions)
+
 	// account orders
 	api.HandleFunc("/account/order/{accountId}/{storeId}", func(w http.ResponseWriter, r *http.Request) {
 		endpoints.GetAccountOrders(w, r, repository)
@@ -221,7 +229,7 @@ func main() {
 	}).Methods(http.MethodPost, http.MethodOptions)
 
 	api.HandleFunc("/prediction/manual/{storeId}/{date}", func(w http.ResponseWriter, r *http.Request) {
-		endpoints.ManualPrediction(w, r, publisher)
+		endpoints.ManualPrediction(w, r, repository, publisher)
 	}).Methods(http.MethodPost, http.MethodOptions)
 
 	// orders
@@ -364,7 +372,7 @@ func main() {
 	r.PathPrefix("/public/").Handler(s)
 
 	s2 := http.StripPrefix("/files/", http.FileServer(http.Dir(exePath+"/temp/")))
-	r.PathPrefix("/public/").Handler(s2)
+	r.PathPrefix("/files/").Handler(s2)
 
 	// add swagger
 	if os.Getenv("API_DOC") == "true" {

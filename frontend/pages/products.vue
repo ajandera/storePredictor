@@ -16,7 +16,7 @@
           v-model="importDialog"
           max-width="500px"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template v-slot:activator="{ props }">
             <Help
               title="Products management"
               keyString="help-productsManagement"
@@ -25,8 +25,7 @@
               color="primary"
               dark
               class="mb-2 mr-2"
-              v-bind="attrs"
-              v-on="on"
+              v-bind="props"
             >
               {{ $t("product.import.add") }}
             </v-btn>
@@ -312,7 +311,9 @@ export default class ProductsPage extends Vue {
       });
   }
 
-  showDetail(item: Product, storeId: string) {
+  showDetail(itemOrEvent: any, rowObj?: any) {
+    const item: Product = rowObj?.item ? rowObj.item : itemOrEvent;
+    const storeId = String(this.$route.query.storeId || "");
     this.dialog = true;
     this.getProductDetailData(item);
     this.getOrderHistory(item, storeId);
@@ -322,10 +323,12 @@ export default class ProductsPage extends Vue {
     this.dialog = false;
     this.histOrd = [];
     this.ord = [];
-    this.$refs.realtimeOrd.updateSeries([
-      { data: this.ord },
-      { data: this.histOrd },
-    ]);
+    if (this.$refs.realtimeOrd) {
+      this.$refs.realtimeOrd.updateSeries([
+        { data: this.ord },
+        { data: this.histOrd },
+      ]);
+    }
   }
 
   closeImport() {
@@ -347,7 +350,7 @@ export default class ProductsPage extends Vue {
       )
       .then((response: any) => {
         if (response.data.success === true) {
-          if (response.data.products !== null) {
+          if (response.data.prediction !== null && response.data.prediction !== undefined) {
             this.histOrd = response.data.prediction
               .filter((item: any) => item.Index === "d0")
               .map((record: any) => [record.Date.split(" ")[0], record.Val]);
@@ -363,7 +366,7 @@ export default class ProductsPage extends Vue {
               }
             }
             setTimeout(() => {
-              this.$refs.realtimeOrd.updateSeries([
+              this.$refs.realtimeOrd?.updateSeries([
                 { data: this.ord },
                 { data: this.histOrd },
               ]);

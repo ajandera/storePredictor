@@ -39,7 +39,7 @@ func GetInvoices(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -66,7 +66,7 @@ func CreateInvoice(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if _, ok := authenticate(w, r); ok {
 		// Declare a new Visitor struct.
 		var invoice inv.Invoices
 
@@ -75,7 +75,10 @@ func CreateInvoice(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		err := json.NewDecoder(r.Body).Decode(&invoice)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			log.Printf(err.Error())
+			log.Print(err)
+			return
+		}
+		if !isAuthorized(w, r, m, invoice.StoreRefer) {
 			return
 		}
 
@@ -86,7 +89,7 @@ func CreateInvoice(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -120,11 +123,15 @@ func UpdateInvoice(w http.ResponseWriter, r *http.Request, m model.Repository) {
 	err := json.NewDecoder(r.Body).Decode(&invoice)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return
 	}
 
-	if isAuthorized(w, r, m, invoice.StoreRefer) == true {
+	if callerId, ok := authenticate(w, r); ok {
+		if !invoiceBelongsToCaller(m, callerId, invoice.Id) {
+			denyAccess(w)
+			return
+		}
 		response := simplejson.New()
 		amount, _ := strconv.ParseFloat(invoice.Amount, 64)
 		m.UpdateInvoice(invoice.Id, invoice.DueDate, amount, invoice.Currency)
@@ -132,7 +139,7 @@ func UpdateInvoice(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -169,7 +176,7 @@ func GetInvoicesQuery(w http.ResponseWriter, r *http.Request, m model.Repository
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -193,7 +200,7 @@ func DeleteInvoice(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if callerId, ok := authenticate(w, r); ok {
 		vars := mux.Vars(r)
 		supplierId := vars["invoiceId"]
 
@@ -203,6 +210,10 @@ func DeleteInvoice(w http.ResponseWriter, r *http.Request, m model.Repository) {
 			http.Error(w, "Invoice Id id is not send", http.StatusBadRequest)
 			return
 		}
+		if !invoiceBelongsToCaller(m, callerId, supplierId) {
+			denyAccess(w)
+			return
+		}
 
 		response := simplejson.New()
 		m.DeleteInvoice(supplierId)
@@ -210,7 +221,7 @@ func DeleteInvoice(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 
 		w.Header().Set("Content-Type", "application/json")

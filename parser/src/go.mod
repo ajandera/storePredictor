@@ -1,12 +1,13 @@
 module main
 
-go 1.19
+go 1.27.0
+
+toolchain go1.27.3
 
 require (
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271
 	github.com/wagslane/go-rabbitmq v0.12.3
-
 )
 
 require (

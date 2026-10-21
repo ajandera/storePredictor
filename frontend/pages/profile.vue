@@ -75,12 +75,12 @@
           <v-autocomplete
             :items="countries"
             :filter="customFilter"
-            item-text="Name"
+            item-title="Name"
             item-value="Code"
             :rules="countryRules"
             :label="$t('profile.countrycode')"
             v-model="countryCode"
-          ></v-autocomplete>`
+          ></v-autocomplete>
         </v-col>
 
         <v-col cols="12" md="4">

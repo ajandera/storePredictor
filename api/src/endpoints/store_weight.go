@@ -26,10 +26,10 @@ func GetStoreWeights(w http.ResponseWriter, r *http.Request, m model.Repository)
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
-		vars := mux.Vars(r)
-		storeId := vars["storeId"]
+	vars := mux.Vars(r)
+	storeId := vars["storeId"]
 
+	if isAuthorized(w, r, m, storeId) == true {
 		// Try to decode the request body into the struct. If there is an error,
 		// respond to the client with the error message and a 400 status code.
 		if len(storeId) <= 0 {
@@ -43,7 +43,7 @@ func GetStoreWeights(w http.ResponseWriter, r *http.Request, m model.Repository)
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -68,7 +68,7 @@ func CreateStoreWeights(w http.ResponseWriter, r *http.Request, m model.Reposito
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if _, ok := authenticate(w, r); ok {
 		// Declare a new Visitor struct.
 		var storeWeights sw.StoreWeights
 
@@ -77,7 +77,10 @@ func CreateStoreWeights(w http.ResponseWriter, r *http.Request, m model.Reposito
 		err := json.NewDecoder(r.Body).Decode(&storeWeights)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			log.Printf(err.Error())
+			log.Print(err)
+			return
+		}
+		if !isAuthorized(w, r, m, storeWeights.StoreRefer) {
 			return
 		}
 
@@ -89,7 +92,7 @@ func CreateStoreWeights(w http.ResponseWriter, r *http.Request, m model.Reposito
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -113,7 +116,7 @@ func UpdateStoreWeights(w http.ResponseWriter, r *http.Request, m model.Reposito
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if _, ok := authenticate(w, r); ok {
 		// Declare a new Visitor struct.
 		var storeWeights sw.StoreWeights
 
@@ -122,7 +125,10 @@ func UpdateStoreWeights(w http.ResponseWriter, r *http.Request, m model.Reposito
 		err := json.NewDecoder(r.Body).Decode(&storeWeights)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			log.Printf(err.Error())
+			log.Print(err)
+			return
+		}
+		if !isAuthorized(w, r, m, storeWeights.StoreRefer) {
 			return
 		}
 
@@ -133,7 +139,7 @@ func UpdateStoreWeights(w http.ResponseWriter, r *http.Request, m model.Reposito
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 

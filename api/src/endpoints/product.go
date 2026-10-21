@@ -40,7 +40,7 @@ func GetProducts(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -79,7 +79,7 @@ func GetProductsWarehouse(w http.ResponseWriter, r *http.Request, m model.Reposi
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -115,7 +115,7 @@ func GetProductWarehouse(w http.ResponseWriter, r *http.Request, m model.Reposit
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -154,7 +154,7 @@ func GetProductsToStore(w http.ResponseWriter, r *http.Request, m model.Reposito
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -190,7 +190,7 @@ func GetProductToStore(w http.ResponseWriter, r *http.Request, m model.Repositor
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			return
 		}
 
@@ -217,7 +217,7 @@ func CreateProduct(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		return
 	}
 
-	if isAuthorized(w, r, m, "") == true {
+	if _, ok := authenticate(w, r); ok {
 		// Declare a new Visitor struct.
 		var product pr.Product
 
@@ -226,7 +226,11 @@ func CreateProduct(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		err := json.NewDecoder(r.Body).Decode(&product)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			log.Printf(err.Error())
+			log.Print(err)
+			return
+		}
+
+		if !isAuthorized(w, r, m, product.StoreId) {
 			return
 		}
 
@@ -236,7 +240,7 @@ func CreateProduct(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -270,7 +274,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request, m model.Repository) {
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return
 	}
 
@@ -281,7 +285,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request, m model.Repository) {
 
 		payload, err := response.MarshalJSON()
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 		}
 
 		w.Header().Set("Content-Type", "application/json")

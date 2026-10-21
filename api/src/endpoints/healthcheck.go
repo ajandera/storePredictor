@@ -27,7 +27,7 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 
 	payload, err := response.MarshalJSON()
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		return
 	}
 

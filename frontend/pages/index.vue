@@ -60,7 +60,9 @@
           :items="products"
           :single-select="singleSelect"
           show-select
+          return-object
           item-key="ProductCode"
+          item-value="ProductCode"
           class="elevation-1"
           :search="date"
           :custom-filter="filterByDate"
@@ -77,14 +79,13 @@
                 offset-y
                 min-width="auto"
               >
-                <template v-slot:activator="{ on, attrs }">
+                <template v-slot:activator="{ props }">
                   <v-text-field
                     v-model="date"
                     :label="$t('index.dateToStore')"
                     prepend-icon="mdi-calendar"
                     readonly
-                    v-bind="attrs"
-                    v-on="on"
+                    v-bind="props"
                     class="pt-5 mr-2 dateSearch"
                     hint="MM/DD/YYYY format"
                     persistent-hint
@@ -120,10 +121,9 @@
           </template>
           <template v-slot:item.Id="{ item }">
             <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
+              <template v-slot:activator="{ props }">
                 <v-btn
-                  v-bind="attrs"
-                  v-on="on"
+                  v-bind="props"
                   @click="solved(item)"
                   class="mr-2"
                   color="primary"
@@ -162,7 +162,7 @@
             v-model="selectedSupplier"
             :items="suppliers"
             :label="$t('index.selectSupplier')"
-            item-text="Name"
+            item-title="Name"
             item-value="Id"
             required
           ></v-select>
@@ -492,7 +492,8 @@ export default class IndexPage extends Vue {
       .get("/prediction/query/visitors/" + storeId + "/2/2")
       .then((response: any) => {
         if (response.data.success === true) {
-          const histVisit = response.data.prediction
+          const pred = response.data.prediction || [];
+          const histVisit = pred
             .filter((item: any) => item.Index === "d0")
             .map((record: any) => [record.Date.split(" ")[0], record.Val]);
           let histValue: number[] = [];
@@ -511,7 +512,7 @@ export default class IndexPage extends Vue {
             let date = new Date();
             date.setDate(date.getDate() + d);
             const day = date.toISOString().slice(0, 10);
-            const base = response.data.prediction.filter(
+            const base = pred.filter(
               (item: any) => item.Date.split(" ")[0] === day
             );
             if (base.length > 0) {
@@ -553,10 +554,11 @@ export default class IndexPage extends Vue {
       .get("/prediction/query/orders/" + storeId + "/2/2")
       .then((response: any) => {
         if (response.data.success === true) {
-          this.histOrd = response.data.prediction
+          const pred = response.data.prediction || [];
+          this.histOrd = pred
             .filter((item: any) => item.Index === "d0")
             .map((record: any) => [record.Date.split(" ")[0], record.Val]);
-          this.histInc = response.data.prediction
+          this.histInc = pred
             .filter((item: any) => item.Index === "d0")
             .map((record: any) => [
               record.Date.split(" ")[0],
@@ -566,7 +568,7 @@ export default class IndexPage extends Vue {
             let date = new Date();
             date.setDate(date.getDate() + d);
             const day = date.toISOString().slice(0, 10);
-            const base = response.data.prediction.filter(
+            const base = pred.filter(
               (item: any) => item.Date.split(" ")[0] === day
             );
             if (base.length > 0) {
@@ -604,7 +606,7 @@ export default class IndexPage extends Vue {
       .get("/invoice/query/" + storeId + "/0/2")
       .then((response: any) => {
         if (response.data.success === true) {
-          response.data.invoices.forEach((item: any) => {
+          (response.data.invoices || []).forEach((item: any) => {
             let time = new Date(item.DueDate).getTime();
             this.invoices.push([time, item.Amount]);
           });
@@ -650,7 +652,9 @@ export default class IndexPage extends Vue {
     );
     let htmlTemplate = supplier?.Template + "<br>";
     this.selected.forEach((product) => {
-      htmlTemplate += product.code + ": " + product.number + " Qty <br>";
+      const code = product.ProductCode || product.code;
+      const qty = product.Expected || product.Quantity || product.number;
+      htmlTemplate += code + ": " + qty + " Qty <br>";
     });
     this.$axios
       .post("/supplier/order", {
