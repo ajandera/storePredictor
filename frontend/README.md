@@ -1,4 +1,6 @@
-# Frontend
+# storePredictor Frontend (Nuxt 4)
+
+The storePredictor client application built with **Nuxt 4** (`^4.6.2`), **Vue 3**, **Vuetify 3**, **Vite 8**, and **`@nuxtjs/i18n`**.
 
 ## Build Setup
 
@@ -6,63 +8,60 @@
 # install dependencies
 $ npm install
 
-# serve with hot reload at localhost:3000
+# serve with hot reload at http://localhost:3000
 $ npm run dev
 
-# build for production and launch server
+# build for production
 $ npm run build
 
-# generate static project which we used
+# preview production server
+$ npm run preview
+
+# generate static site in .output/public
 $ npm run generate
-
-For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
-
-## Special Directories
-
-You can create the following extra directories, some of which have special behaviors. Only `pages` is required; you can delete them if you don't want to use their functionality.
-
-### `assets`
-
-The assets directory contains your uncompiled assets such as Stylus or Sass files, images, or fonts.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/assets).
-
-### `components`
-
-The components directory contains your Vue.js components. Components make up the different parts of your page and can be reused and imported into your pages, layouts and even other components.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/components).
-
-### `layouts`
-
-Layouts are a great help when you want to change the look and feel of your Nuxt app, whether you want to include a sidebar or have distinct layouts for mobile and desktop.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/layouts).
-
-
-### `pages`
-
-This directory contains your application views and routes. Nuxt will read all the `*.vue` files inside this directory and setup Vue Router automatically.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/get-started/routing).
-
-### `plugins`
-
-The plugins directory contains JavaScript plugins that you want to run before instantiating the root Vue.js Application. This is the place to add Vue plugins and to inject functions or constants. Every time you need to use `Vue.use()`, you should create a file in `plugins/` and add its path to plugins in `nuxt.config.js`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/plugins).
-
-### `static`
-
-This directory contains your static files. Each file inside this directory is mapped to `/`.
-
-Example: `/static/robots.txt` is mapped as `/robots.txt`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/static).
-
-### `store`
-
-This directory contains your Vuex store files. Creating a file in this directory automatically activates Vuex.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/store).
 ```
+
+For detailed explanation on how Nuxt 4 works, check out the [Nuxt documentation](https://nuxt.com/docs).
+
+## Environment Configuration
+
+Create a `.env` file based on `env.example`:
+
+```env
+API=http://localhost:9999/v1/
+NUXT_PUBLIC_API=http://localhost:9999/v1/
+```
+
+Runtime configuration is defined in `nuxt.config.ts` under `runtimeConfig.public` (`api`, `internalApi`, `partnerApi`, `cmsApi`, `token`, `setting`).
+
+## Directory Structure
+
+### `assets/`
+Contains uncompiled SCSS variables and styling (`assets/variables.scss`).
+
+### `components/`
+Contains reusable Vue components (`Forgot.vue`, `Help.vue`, `Snackbar.vue`, `Spinner.vue`, `Upgrade.vue`).
+
+### `compat/`
+Contains Nuxt 4 / Vue 3 class-component and reactive store compatibility modules (`nuxt-property-decorator.ts`, `vuex-class.ts`, `store.ts`).
+
+### `layouts/`
+Contains application layouts (`default.vue`, `login.vue`, `empty.vue`, `error.vue`).
+
+### `locales/`
+Contains i18n translation dictionaries (`en.json`, `cz.json`, `sk.json`, `de.json`, `pl.json`, `ro.json`, `hu.json`) loaded via `i18n.config.ts`.
+
+### `model/`
+Contains TypeScript interfaces and data models for API requests and responses.
+
+### `pages/`
+Contains application views and routes (`index.vue`, `stores.vue`, `products.vue`, `tracking.vue`, `profile.vue`, `users.vue`, `sign.vue`, `signup.vue`, `restore.vue`, `help.vue`, `token.vue`, `callback.vue`, `storetest.vue`).
+
+### `plugins/`
+Contains Nuxt 4 plugins automatically registered at startup:
+- `01.vuetify.ts` — Vuetify 3 setup and theme configuration (`light` & `dark` themes).
+- `02.app-bridge.ts` — Axios instance (`$axios`) with Bearer token & refresh token interceptors, authentication state (`$auth`), reactive store (`$store`), event bus (`$nuxt.$on` / `$nuxt.$emit`), and `$i18n` helpers.
+- `03.components.client.ts` — Client components (`<apexchart>`, `<country-flag>`, `<quill-editor>`, `<vue-mermaid-string>`, `<paypal-checkout>`).
+
+### `public/`
+Contains static files mapped directly to the server root `/` (e.g., `/public/sp_logo.svg` -> `/sp_logo.svg`, `/public/countries.json` -> `/countries.json`).

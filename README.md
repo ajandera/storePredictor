@@ -1,63 +1,110 @@
 # storePredictor
 
-![alt text](https://github.com/ajandera/storePredictor/blob/main/frontend/static/sp_logo.svg?raw=true)
+![storePredictor](https://github.com/ajandera/storePredictor/blob/main/frontend/public/sp_logo.svg?raw=true)
 
-<code><img width="50" src="https://github.com/marwin1991/profile-technology-icons/assets/136815194/ebd92b15-970a-45b8-8c4c-0ecf69b17cdc" alt="Nuxt.js" title="Nuxt.js"/></code>
-<code><img width="50" src="https://user-images.githubusercontent.com/25181517/192149581-88194d20-1a37-4be8-8801-5dc0017ffbbe.png" alt="Go" title="Go"/></code>
+<code><img width="50" src="https://github.com/marwin1991/profile-technology-icons/assets/136815194/ebd92b15-970a-45b8-8c4c-0ecf69b17cdc" alt="Nuxt 4" title="Nuxt 4"/></code>
+<code><img width="50" src="https://user-images.githubusercontent.com/25181517/192149581-88194d20-1a37-4be8-8801-5dc0017ffbbe.png" alt="Go 1.27" title="Go 1.27"/></code>
 <code><img width="50" src="https://github.com/marwin1991/profile-technology-icons/assets/136815194/50342602-8025-4030-b492-550f2eaa4073" alt="RabbitMQ" title="RabbitMQ"/></code>
 <code><img width="50" src="https://user-images.githubusercontent.com/25181517/117208740-bfb78400-adf5-11eb-97bb-09072b6bedfc.png" alt="PostgreSQL" title="PostgreSQL"/></code>
 <code><img width="50" src="https://user-images.githubusercontent.com/25181517/117207330-263ba280-adf4-11eb-9b97-0ac5b40bc3be.png" alt="Docker" title="Docker"/></code>
 
-Predictive analytics open source platform.
+Predictive analytics open-source platform for e-commerce stores.
 
 ## Table of Contents
 
 1. [Introduction](#introduction)
 2. [Features](#features)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Contributing](#contributing)
-6. [License](#license)
+3. [Architecture & Tech Stack](#architecture--tech-stack)
+4. [Installation](#installation)
+5. [Configuration](#configuration)
+6. [Usage & Testing](#usage--testing)
+7. [Contributing](#contributing)
+8. [License](#license)
 
 ## Introduction
 
-Open source version of storePredictor starupt which was able to be to be opened.
-Platform to track customers in online stores and made cashflow and inventory prediction with simple UI. Develop in GoLang and NuxtJS.
+Open-source version of the **storePredictor** platform to track customer behavior in online stores and generate AI-driven cashflow, visitor, order, and inventory predictions with a clean dashboard UI. Built with **Go 1.27** microservices and a **Nuxt 4** (Vue 3 + Vuetify 3) frontend.
 
 ## Features
 
-- trackcvustomers without cookies
-- predict customer path true online store
-- track your goals and custom parameters
-- AI prediction of cashflow
-- AI predictions of stock per product
+- Track customers without cookies
+- Predict customer path through an online store
+- Track goals and custom parameters
+- AI predictions of cashflow, orders, and visitors
+- AI predictions of stock needs per product and automated supplier ordering
+- PDF & Excel report generation and sharing
+- Multi-user tenant accounts (`Admin` / `Viewer` roles) and multi-language UI (`en`, `cz`, `sk`, `de`, `pl`, `ro`, `hu`)
+
+## Architecture & Tech Stack
+
+- **Backend Services (Go 1.27 / `go1.27.3`)**:
+  - `api/` (`:9999` -> `:8888`): REST API (`gorilla/mux`), JWT authentication (`access`, `refresh`, and `restore` token claims), tenant & store ownership authorization, PDF/Excel report generation, and AI assistant endpoint.
+  - `parser/`: Worker service consuming XML product feeds from RabbitMQ.
+  - `parser-producer/`: Scheduled producer queuing store XML feeds for parsing.
+  - `prediction/`: Worker service computing store and product predictions into InfluxDB.
+  - `prediction-producer/`: Producer scheduling prediction jobs into RabbitMQ.
+- **Frontend (`frontend/`)**:
+  - **Nuxt 4** (`^4.6.2`), **Vue 3** (`^3.5`), **Vuetify 3** (`^3.8`), **Vite 8**, **`@nuxtjs/i18n`** (`^9.5`), **ApexCharts**, and **Mermaid**.
+- **Infrastructure (`docker/`)**:
+  - PostgreSQL (`clientsData` & `clientsInformation`), InfluxDB (time-series predictions), RabbitMQ (job queue), Adminer (`:8080`).
 
 ## Installation
 
-- install docker from https://docs.docker.com/get-docker/
+1. Install Docker Desktop / Docker Engine from [docs.docker.com/get-docker](https://docs.docker.com/get-docker/).
+2. Start the backend services and databases from the `docker` directory:
 
-- go to folder docker
+   ```bash
+   cd docker
+   docker compose up --build
+   ```
 
-- run 
-        
-        docker-compose up
+3. Install dependencies and start the Nuxt 4 frontend in `frontend`:
 
-- than go to frontend and run 
+   ```bash
+   cd ../frontend
+   npm install
+   npm run dev
+   ```
 
-        npm i
+## Configuration
 
-- than run 
+### Backend (`docker/docker-compose.yml`)
+Key environment variables configured for the API and worker containers:
+- `JWT_SECRET`: Secret key used to sign and verify `access`, `refresh`, and `restore` JWT tokens.
+- `CLIENTS_DATA_*` & `CLIENTS_INFORMATION_*`: PostgreSQL connection settings.
+- `INFLUX_HOST`, `INFLUX_TOKEN`, `INFLUX_ORGANIZATION`: InfluxDB connection settings.
+- `RABBIT_HOST`, `RABBIT_PORT`, `RABBIT_USER`, `RABBIT_PASS`: RabbitMQ connection settings.
+- `SMTP_HOST`, `SMTP_PORT`, `EMAIL_USER`, `EMAIL_PASS`: SMTP settings for password resets, supplier orders, and shared reports.
 
-        npm run dev
+### Frontend (`frontend/.env`)
+Copy `frontend/env.example` to `frontend/.env`:
 
+```env
+API=http://localhost:9999/v1/
+NUXT_PUBLIC_API=http://localhost:9999/v1/
+```
 
-## Usage
+## Usage & Testing
 
-Navigate to the localhost:3000 to see the application. Made a registration of first account. Than log to the system.
+- Navigate to `http://localhost:3000` to open the web application.
+- Register your first account on `/signup` (or `/sign`) and log in.
+- Run backend unit tests and static analysis across services:
+
+  ```bash
+  cd api/src && go vet ./... && go test ./...
+  ```
+
+- Build or statically generate the Nuxt 4 frontend for production:
+
+  ```bash
+  cd frontend
+  npm run build
+  npm run generate
+  ```
 
 ## Contributing
 
-We welcome contributions to the storePredictor! Here are some guidelines to help you get started:
+We welcome contributions to storePredictor! Here are some guidelines to help you get started:
 
 ### How to Contribute
 
@@ -66,8 +113,8 @@ We welcome contributions to the storePredictor! Here are some guidelines to help
 2. **Clone your fork**: Clone the forked repository to your local machine.
 
     ```bash
-    git clone https://github.com/your-username/your-repo-name.git
-    cd your-repo-name
+    git clone https://github.com/your-username/storePredictor.git
+    cd storePredictor
     ```
 
 3. **Create a branch**: Create a new branch for your feature or bugfix.
@@ -103,7 +150,7 @@ We welcome contributions to the storePredictor! Here are some guidelines to help
 
 If you find a bug or have a feature request, please open an issue on GitHub. Before opening a new issue, please check if there is an existing issue related to your bug or feature request.
 
-1. Go to the [Issues](https://github.com/your-repo-name/issues) section of the repository.
+1. Go to the [Issues](https://github.com/ajandera/storePredictor/issues) section of the repository.
 2. Click on the "New Issue" button.
 3. Provide a clear and descriptive title and detailed information about the issue.
 
@@ -124,11 +171,8 @@ Thank you for contributing to our project!
 
 This project is licensed under the terms of the [License](licence.md).
 
-
 ## Contact
 
-Ales Jandera ales@storepredictor.com
+Ales Jandera — ales@storepredictor.com
 
-Use slack [workspace](https://storepredictor.slack.com.) to communication.
-If you're open to communication or collaboration.
-
+Use the Slack [workspace](https://storepredictor.slack.com) for communication if you are open to collaboration.
