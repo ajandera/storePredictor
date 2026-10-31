@@ -3,11 +3,11 @@ package endpoints
 import (
 	"encoding/json"
 	"log"
+	"main/repo"
 	sw "main/structs/storeWeights"
 	"main/utils"
 	"net/http"
 
-	model "github.com/ajandera/sp_model"
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 )
@@ -20,7 +20,7 @@ import (
 // @Produce  json
 // @Success 200 {object} []sw.StoreWeights
 // @Router /store-weights/{storeId}  [get]
-func GetStoreWeights(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetStoreWeights(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -62,7 +62,7 @@ func GetStoreWeights(w http.ResponseWriter, r *http.Request, m model.Repository)
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /accounts/{lang}  [post]
-func CreateStoreWeights(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func CreateStoreWeights(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -110,7 +110,7 @@ func CreateStoreWeights(w http.ResponseWriter, r *http.Request, m model.Reposito
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /store-weights  [put]
-func UpdateStoreWeights(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func UpdateStoreWeights(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return

@@ -3,12 +3,12 @@ package endpoints
 import (
 	"encoding/json"
 	"log"
+	"main/repo"
 	pr "main/structs/product"
 	"main/utils"
 	"net/http"
 	"strconv"
 
-	model "github.com/ajandera/sp_model"
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 )
@@ -23,7 +23,7 @@ import (
 // @Produce  json
 // @Success 200 {object} []rdbsClientData.TopSellProduct
 // @Router /products/{storeId}/{limit}/{offset}  [get]
-func GetProducts(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetProducts(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -60,7 +60,7 @@ func GetProducts(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} []pr.Product
 // @Router /warehouse/products/{storeId}/{limit}/{offset}  [get]
-func GetProductsWarehouse(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetProductsWarehouse(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -99,7 +99,7 @@ func GetProductsWarehouse(w http.ResponseWriter, r *http.Request, m model.Reposi
 // @Produce  json
 // @Success 200 {object} []pr.Product
 // @Router /warehouse/product/{code}/{storeId}  [get]
-func GetProductWarehouse(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetProductWarehouse(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -135,7 +135,7 @@ func GetProductWarehouse(w http.ResponseWriter, r *http.Request, m model.Reposit
 // @Produce  json
 // @Success 200 {object} []rdbsClientData.ProductToStore
 // @Router /products/needs/{storeId}/{limit}/{offset}  [get]
-func GetProductsToStore(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetProductsToStore(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -174,7 +174,7 @@ func GetProductsToStore(w http.ResponseWriter, r *http.Request, m model.Reposito
 // @Produce  json
 // @Success 200 {object} []rdbsClientData.ProductToStore
 // @Router /products/needs/{storeId}/{productCode}  [get]
-func GetProductToStore(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetProductToStore(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -211,7 +211,7 @@ func GetProductToStore(w http.ResponseWriter, r *http.Request, m model.Repositor
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /warehouse/product  [post]
-func CreateProduct(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func CreateProduct(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -260,7 +260,7 @@ func CreateProduct(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /warehouse/product  [put]
-func UpdateProduct(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func UpdateProduct(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return

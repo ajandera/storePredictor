@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"main/repo"
 	structs "main/structs/share"
 	"main/utils"
 	"net/http"
@@ -129,7 +130,7 @@ func generatePDF(data *ReportData, lang string, filename string) error {
 // @Produce  json
 // @Success 200 {object} utils.ResReport
 // @Router /reports/pdf/{storeId}/{date}/{lang}  [get]
-func GetPDF(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetPDF(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -157,7 +158,7 @@ func GetPDF(w http.ResponseWriter, r *http.Request, m model.Repository) {
 }
 
 // generatePDFReport function to generate pdf report
-func generatePDFReport(date string, storeId string, lang string, m model.Repository) string {
+func generatePDFReport(date string, storeId string, lang string, m repo.Repository) string {
 	// prepare data
 	parsedDate, _ := time.Parse(time.RFC3339, date)
 	var data ReportData
@@ -195,7 +196,7 @@ func generatePDFReport(date string, storeId string, lang string, m model.Reposit
 // @Produce  json
 // @Success 200 {object} utils.ResReport
 // @Router /reports/excel/{storeId}/{date}  [get]
-func GetExcel(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetExcel(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -222,7 +223,7 @@ func GetExcel(w http.ResponseWriter, r *http.Request, m model.Repository) {
 }
 
 // GenerateExcel function to generate excel
-func GenerateExcel(storeId string, date string, m model.Repository) string {
+func GenerateExcel(storeId string, date string, m repo.Repository) string {
 	now := time.Now()
 	f := excelize.NewFile()
 	store := m.GetStoreById(storeId)
@@ -262,7 +263,7 @@ func GenerateExcel(storeId string, date string, m model.Repository) string {
 // @Produce  json
 // @Success 200 {object} Reports
 // @Router /reports/excelfull/{storeId}  [get]
-func GetExcelFull(w http.ResponseWriter, r *http.Request, m model.Repository, i model.Influx) {
+func GetExcelFull(w http.ResponseWriter, r *http.Request, m repo.Repository, i model.Influx) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -287,7 +288,7 @@ func GetExcelFull(w http.ResponseWriter, r *http.Request, m model.Repository, i 
 }
 
 // GenerateExcelFull function to generate full excel with predicted data
-func GenerateExcelFull(storeId string, m model.Repository, i model.Influx) string {
+func GenerateExcelFull(storeId string, m repo.Repository, i model.Influx) string {
 	now := time.Now()
 	f := excelize.NewFile()
 	index, _ := f.NewSheet("Sheet1")
@@ -397,7 +398,7 @@ func GenerateExcelFull(storeId string, m model.Repository, i model.Influx) strin
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /reports/share/{storeId}/{date}/{lang}  [get]
-func ShareReport(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func ShareReport(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return

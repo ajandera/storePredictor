@@ -3,6 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"log"
+	"main/repo"
 	"main/utils"
 	"net/http"
 	"os"
@@ -30,7 +31,7 @@ type InfluxResponse struct {
 // @Produce  json
 // @Success 200 {object} utils.ResPrediction
 // @Router /prediction/visitors/{storeId}/{from}/{to}  [get]
-func GetPredictedVisitors(w http.ResponseWriter, r *http.Request, m model.Repository, i model.Influx) {
+func GetPredictedVisitors(w http.ResponseWriter, r *http.Request, m repo.Repository, i model.Influx) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -78,7 +79,7 @@ func GetPredictedVisitors(w http.ResponseWriter, r *http.Request, m model.Reposi
 // @Produce  json
 // @Success 200 {object} utils.ResPrediction
 // @Router /prediction/query/visitors/{storeId}/{from}/{to}  [get]
-func GetPredictedVisitorsQuery(w http.ResponseWriter, r *http.Request, m model.Repository, i model.Influx) {
+func GetPredictedVisitorsQuery(w http.ResponseWriter, r *http.Request, m repo.Repository, i model.Influx) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -133,7 +134,7 @@ func GetPredictedVisitorsQuery(w http.ResponseWriter, r *http.Request, m model.R
 // @Produce  json
 // @Success 200 {object} utils.ResPrediction
 // @Router /prediction/orders/{storeId}/{from}/{to}  [get]
-func GetPredictedOrders(w http.ResponseWriter, r *http.Request, m model.Repository, i model.Influx) {
+func GetPredictedOrders(w http.ResponseWriter, r *http.Request, m repo.Repository, i model.Influx) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -181,7 +182,7 @@ func GetPredictedOrders(w http.ResponseWriter, r *http.Request, m model.Reposito
 // @Produce  json
 // @Success 200 {object} utils.ResPrediction
 // @Router /prediction/query/orders/{storeId}/{from}/{to}  [get]
-func GetPredictedOrdersQuery(w http.ResponseWriter, r *http.Request, m model.Repository, i model.Influx) {
+func GetPredictedOrdersQuery(w http.ResponseWriter, r *http.Request, m repo.Repository, i model.Influx) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -256,7 +257,7 @@ func GetPredictedOrdersQuery(w http.ResponseWriter, r *http.Request, m model.Rep
 // @Produce  json
 // @Success 200 {object} utils.ResPrediction
 // @Router /prediction/products/{productCode}/{storeId}/{from}/{to}  [get]
-func GetPredictedProducts(w http.ResponseWriter, r *http.Request, m model.Repository, i model.Influx) {
+func GetPredictedProducts(w http.ResponseWriter, r *http.Request, m repo.Repository, i model.Influx) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -305,7 +306,7 @@ func GetPredictedProducts(w http.ResponseWriter, r *http.Request, m model.Reposi
 // @Produce  json
 // @Success 200 {object} utils.ResPrediction
 // @Router /prediction/query/products/{productCode}/{storeId}/{from}/{to}  [get]
-func GetPredictedProductsQuery(w http.ResponseWriter, r *http.Request, m model.Repository, i model.Influx) {
+func GetPredictedProductsQuery(w http.ResponseWriter, r *http.Request, m repo.Repository, i model.Influx) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -369,7 +370,7 @@ func GetPredictedProductsQuery(w http.ResponseWriter, r *http.Request, m model.R
 // @Produce  json
 // @Success 200 {object} utils.ResPrediction
 // @Router /stats/{storeId}  [get]
-func GetStats(w http.ResponseWriter, r *http.Request, m model.Repository, i model.Influx) {
+func GetStats(w http.ResponseWriter, r *http.Request, m repo.Repository, i model.Influx) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -413,7 +414,7 @@ func GetStats(w http.ResponseWriter, r *http.Request, m model.Repository, i mode
 
 // GetPredictionR2 function to calculate r-square
 
-func GetPredictionR2(storeId string, m model.Repository, i model.Influx) float64 {
+func GetPredictionR2(storeId string, m repo.Repository, i model.Influx) float64 {
 	var result float64
 	sum := 0.00
 	sumAvg := 0.00

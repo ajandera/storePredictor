@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"main/repo"
 	"main/utils"
 	"net/http"
 	"net/url"
 	"strings"
 
-	model "github.com/ajandera/sp_model"
 	"github.com/bitly/go-simplejson"
 )
 
@@ -56,7 +56,7 @@ type VisitorOffline struct {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /visitors  [post]
-func Visitors(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func Visitors(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -137,7 +137,7 @@ func Visitors(w http.ResponseWriter, r *http.Request, m model.Repository) {
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(payload)
 		} else {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, "Bad url", http.StatusBadRequest)
 			log.Println("Bad url: " + u.Hostname())
 		}
 	}
@@ -154,7 +154,7 @@ func Visitors(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /visitors-offline  [post]
-func VisitorsOffline(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func VisitorsOffline(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -167,7 +167,11 @@ func VisitorsOffline(w http.ResponseWriter, r *http.Request, m model.Repository)
 	body, _ := ioutil.ReadAll(r.Body)
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
-	err := json.NewDecoder(r.Body).Decode(&v)
+	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		log.Println(err.Error())
+		return
+	}
 
 	// for subdomain
 	storeId := m.CheckStoreCodeOffline(v.Code, v.Unit)
@@ -185,7 +189,7 @@ func VisitorsOffline(w http.ResponseWriter, r *http.Request, m model.Repository)
 		w.WriteHeader(http.StatusCreated)
 		w.Write(payload)
 	} else {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Not valid store code", http.StatusBadRequest)
 		log.Println("Bad unit: " + v.Unit)
 	}
 }

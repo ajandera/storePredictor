@@ -3,11 +3,11 @@ package endpoints
 import (
 	"encoding/json"
 	"log"
+	"main/repo"
 	sp "main/structs/suppliers"
 	"main/utils"
 	"net/http"
 
-	model "github.com/ajandera/sp_model"
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 )
@@ -22,7 +22,7 @@ import (
 // @Produce  json
 // @Success 200 {object} []sp.Suppliers
 // @Router /supplier/{storeId}  [get]
-func GetSuppliers(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetSuppliers(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -58,7 +58,7 @@ func GetSuppliers(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} sp.Suppliers
 // @Router /supplier/detail/{supplierId}  [get]
-func GetSupplierDetail(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetSupplierDetail(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -96,7 +96,7 @@ func GetSupplierDetail(w http.ResponseWriter, r *http.Request, m model.Repositor
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /supplier  [post]
-func CreateSupplier(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func CreateSupplier(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -146,7 +146,7 @@ func CreateSupplier(w http.ResponseWriter, r *http.Request, m model.Repository) 
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /supplier/order  [post]
-func CreateSupplierOrder(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func CreateSupplierOrder(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -191,7 +191,7 @@ func CreateSupplierOrder(w http.ResponseWriter, r *http.Request, m model.Reposit
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /supplier  [put]
-func UpdateSupplier(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func UpdateSupplier(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -240,7 +240,7 @@ func UpdateSupplier(w http.ResponseWriter, r *http.Request, m model.Repository) 
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /supplier/{supplierId}  [delete]
-func DeleteSupplier(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func DeleteSupplier(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return

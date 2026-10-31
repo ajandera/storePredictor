@@ -3,13 +3,13 @@ package endpoints
 import (
 	"encoding/json"
 	"log"
+	"main/repo"
 	"main/utils"
 	"net"
 	"net/http"
 	"net/url"
 	"strings"
 
-	model "github.com/ajandera/sp_model"
 	"github.com/ajandera/sp_model/rdbsClientData"
 
 	"github.com/bitly/go-simplejson"
@@ -55,7 +55,7 @@ type ShopifyOrderItem struct {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /orders  [post]
-func Orders(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func Orders(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -95,8 +95,11 @@ func Orders(w http.ResponseWriter, r *http.Request, m model.Repository) {
 		w.Write(payload)
 	} else {
 		parts := strings.Split(u.Hostname(), ".")
-		domain := parts[len(parts)-2] + "." + parts[len(parts)-1]
-		storeId := m.CheckStoreCode(o.Code, domain)
+		storeId := ""
+		if len(parts) > 1 {
+			domain := parts[len(parts)-2] + "." + parts[len(parts)-1]
+			storeId = m.CheckStoreCode(o.Code, domain)
+		}
 
 		if utils.IsValidUUID(storeId) == true {
 			m.SaveOrder(o.TotalPrice, o.Currency, storeId, o.Items, o.OrderId, o.Tag)
@@ -128,7 +131,7 @@ func Orders(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /shopify-orders  [post]
-func ShopifyOrders(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func ShopifyOrders(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return

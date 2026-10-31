@@ -3,11 +3,11 @@ package endpoints
 import (
 	"encoding/json"
 	"log"
+	"main/repo"
 	od "main/structs/openData"
 	"main/utils"
 	"net/http"
 
-	model "github.com/ajandera/sp_model"
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 )
@@ -20,7 +20,7 @@ import (
 // @Produce  json
 // @Success 200 {object} []od.OpenData
 // @Router /open-data/{storeId}  [get]
-func GetOpenData(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetOpenData(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -64,7 +64,7 @@ func GetOpenData(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /open-data  [post]
-func AddOpenData(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func AddOpenData(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return

@@ -3,12 +3,12 @@ package endpoints
 import (
 	"encoding/json"
 	"log"
+	"main/repo"
 	inv "main/structs/invoices"
 	"main/utils"
 	"net/http"
 	"strconv"
 
-	model "github.com/ajandera/sp_model"
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 )
@@ -23,7 +23,7 @@ import (
 // @Produce  json
 // @Success 200 {object} []inv.Invoices
 // @Router /invoice/{storeId}  [get]
-func GetInvoices(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetInvoices(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -60,7 +60,7 @@ func GetInvoices(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /invoice  [post]
-func CreateInvoice(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func CreateInvoice(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -109,7 +109,7 @@ func CreateInvoice(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /invoice  [put]
-func UpdateInvoice(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func UpdateInvoice(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -158,7 +158,7 @@ func UpdateInvoice(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} []inv.Invoices
 // @Router /invoice/query/{storeId}/{from}/{to}  [get]
-func GetInvoicesQuery(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetInvoicesQuery(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -194,7 +194,7 @@ func GetInvoicesQuery(w http.ResponseWriter, r *http.Request, m model.Repository
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /invoice/{invoiceId}  [delete]
-func DeleteInvoice(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func DeleteInvoice(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return

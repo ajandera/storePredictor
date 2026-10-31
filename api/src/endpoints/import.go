@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"main/repo"
 	"main/utils"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
 
-	model "github.com/ajandera/sp_model"
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 	"github.com/xuri/excelize/v2"
@@ -27,7 +27,7 @@ import (
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /warehouse/import/{storeId}  [post]
-func ImportWarehouse(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func ImportWarehouse(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -40,6 +40,8 @@ func ImportWarehouse(w http.ResponseWriter, r *http.Request, m model.Repository)
 
 		if err != nil {
 			log.Println("From file: " + err.Error())
+			http.Error(w, "Import file is missing.", http.StatusBadRequest)
+			return
 		}
 
 		defer file.Close()
@@ -62,6 +64,8 @@ func ImportWarehouse(w http.ResponseWriter, r *http.Request, m model.Repository)
 
 		if err != nil {
 			log.Print(err.Error())
+			http.Error(w, "Import file is not a valid spreadsheet.", http.StatusBadRequest)
+			return
 		}
 
 		// Get all the rows in the Sheet1.
@@ -72,6 +76,9 @@ func ImportWarehouse(w http.ResponseWriter, r *http.Request, m model.Repository)
 		}
 
 		for _, row := range rows {
+			if len(row) < 3 {
+				continue
+			}
 			qty, _ := strconv.ParseInt(row[2], 0, 8)
 			// check if exist
 			product := m.GetProduct(row[0], storeId)
@@ -109,7 +116,7 @@ func ImportWarehouse(w http.ResponseWriter, r *http.Request, m model.Repository)
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /invoice/import  [post]
-func ImportInvoices(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func ImportInvoices(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -122,6 +129,8 @@ func ImportInvoices(w http.ResponseWriter, r *http.Request, m model.Repository) 
 
 		if err != nil {
 			log.Println("From file: " + err.Error())
+			http.Error(w, "Import file is missing.", http.StatusBadRequest)
+			return
 		}
 
 		defer file.Close()
@@ -144,6 +153,8 @@ func ImportInvoices(w http.ResponseWriter, r *http.Request, m model.Repository) 
 
 		if err != nil {
 			log.Print(err.Error())
+			http.Error(w, "Import file is not a valid spreadsheet.", http.StatusBadRequest)
+			return
 		}
 
 		// Get all the rows in the Sheet1.
@@ -153,6 +164,9 @@ func ImportInvoices(w http.ResponseWriter, r *http.Request, m model.Repository) 
 			return
 		}
 		for _, row := range rows {
+			if len(row) < 3 {
+				continue
+			}
 			amount, _ := strconv.ParseFloat(row[1], 64)
 			// DD-MM-YYYY
 			date, _ := time.Parse(time.RFC3339, row[0])

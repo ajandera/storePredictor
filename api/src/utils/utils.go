@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"main/repo"
 	a "main/structs/account"
 	"math/big"
 	"net/http"
@@ -17,7 +18,6 @@ import (
 	"regexp"
 	"strings"
 
-	model "github.com/ajandera/sp_model"
 	"github.com/ajandera/sp_model/rdbsClientInfo"
 
 	"github.com/bitly/go-simplejson"
@@ -37,7 +37,7 @@ type tokenReqBody struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func Auth(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func Auth(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -116,7 +116,7 @@ func PublicAccounts(accounts []rdbsClientInfo.Accounts) []rdbsClientInfo.Account
 	return result
 }
 
-func Logout(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func Logout(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -135,7 +135,7 @@ func Logout(w http.ResponseWriter, r *http.Request, m model.Repository) {
 	w.Write(payload)
 }
 
-func Refresh(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func Refresh(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return

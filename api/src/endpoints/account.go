@@ -3,12 +3,12 @@ package endpoints
 import (
 	"encoding/json"
 	"log"
+	"main/repo"
 	a "main/structs/account"
 	structs "main/structs/pw"
 	"main/utils"
 	"net/http"
 
-	model "github.com/ajandera/sp_model"
 	"github.com/ajandera/sp_model/rdbsClientInfo"
 
 	"github.com/bitly/go-simplejson"
@@ -25,7 +25,7 @@ import (
 // @Produce  json
 // @Success 200 {object} a.Account
 // @Router /account/me  [get]
-func AccountMe(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func AccountMe(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -58,7 +58,7 @@ func AccountMe(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} []a.Account
 // @Router /accounts  [get]
-func GetAccounts(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetAccounts(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -95,7 +95,7 @@ func GetAccounts(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /forgot/{accountId}/{lang}  [get]
-func SendNewPw(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func SendNewPw(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -147,7 +147,7 @@ func SendNewPw(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /accounts/{lang}  [post]
-func Accounts(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func Accounts(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -228,7 +228,7 @@ func Accounts(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /accounts  [put]
-func UpdateAccounts(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func UpdateAccounts(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -307,7 +307,7 @@ func UpdateAccounts(w http.ResponseWriter, r *http.Request, m model.Repository) 
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /accounts/{accountId}  [delete]
-func DeleteAccounts(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func DeleteAccounts(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -354,7 +354,7 @@ func DeleteAccounts(w http.ResponseWriter, r *http.Request, m model.Repository) 
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /restore/{token}  [put]
-func UpdatePassword(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func UpdatePassword(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -411,7 +411,7 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request, m model.Repository) 
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /account/order/{accountId}/{storeId}  [get]
-func GetAccountOrders(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetAccountOrders(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -455,7 +455,7 @@ func GetAccountOrders(w http.ResponseWriter, r *http.Request, m model.Repository
 // @Produce  json
 // @Success 200 {object} a.Account
 // @Router /account/email/{email}  [get]
-func GetAccountByEmail(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetAccountByEmail(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -488,7 +488,7 @@ func GetAccountByEmail(w http.ResponseWriter, r *http.Request, m model.Repositor
 // @Produce  json
 // @Success 200 {object} structs.Account
 // @Router /accounts/{accountId}  [get]
-func GetAccount(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetAccount(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -529,7 +529,7 @@ func GetAccount(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} structs.Account
 // @Router /account/child/{id}  [get]
-func GetChildAccount(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetChildAccount(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -563,7 +563,7 @@ func GetChildAccount(w http.ResponseWriter, r *http.Request, m model.Repository)
 }
 
 // GetPlans function to handle API requests to get all plans from database
-func GetPlans(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetPlans(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -585,7 +585,7 @@ func GetPlans(w http.ResponseWriter, r *http.Request, m model.Repository) {
 }
 
 // GetPaidPlans function to handle API requests to get paid plans from database
-func GetPaidPlans(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetPaidPlans(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return

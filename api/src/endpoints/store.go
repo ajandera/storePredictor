@@ -3,11 +3,11 @@ package endpoints
 import (
 	"encoding/json"
 	"log"
+	"main/repo"
 	s "main/structs/stores"
 	"main/utils"
 	"net/http"
 
-	model "github.com/ajandera/sp_model"
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 )
@@ -20,7 +20,7 @@ import (
 // @Produce  json
 // @Success 200 {object} []s.Stores
 // @Router /stores/{accountId}  [get]
-func GetStoresByAccount(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetStoresByAccount(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -65,7 +65,7 @@ func GetStoresByAccount(w http.ResponseWriter, r *http.Request, m model.Reposito
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /stores  [post]
-func Stores(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func Stores(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -114,7 +114,7 @@ func Stores(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /stores  [put]
-func UpdateStores(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func UpdateStores(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -157,7 +157,7 @@ func UpdateStores(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /stores/{storeId}  [delete]
-func DeleteStores(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func DeleteStores(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -198,7 +198,7 @@ func DeleteStores(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} []s.Stores
 // @Router /stores  [get]
-func GetStores(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetStores(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	log.Println((*r).Method)
 	if (*r).Method == "OPTIONS" {

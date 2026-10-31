@@ -1,10 +1,10 @@
 package endpoints
 
 import (
+	"main/repo"
 	"main/utils"
 	"net/http"
 
-	model "github.com/ajandera/sp_model"
 	"github.com/ajandera/sp_model/rdbsClientInfo"
 )
 
@@ -21,7 +21,7 @@ func authenticate(w http.ResponseWriter, r *http.Request) (string, bool) {
 
 // isAuthorized checks the access token and that the store belongs to the logged account
 // (or to its parent account). It writes 401/403 and returns false when access is denied.
-func isAuthorized(w http.ResponseWriter, r *http.Request, m model.Repository, storeId string) bool {
+func isAuthorized(w http.ResponseWriter, r *http.Request, m repo.Repository, storeId string) bool {
 	accountId, ok := authenticate(w, r)
 	if !ok {
 		return false
@@ -43,7 +43,7 @@ func tenantOwner(account rdbsClientInfo.Accounts) string {
 }
 
 // canViewAccount returns true when target account belongs to the same tenant as the caller.
-func canViewAccount(m model.Repository, callerId string, targetId string) bool {
+func canViewAccount(m repo.Repository, callerId string, targetId string) bool {
 	if !utils.IsValidUUID(targetId) {
 		return false
 	}
@@ -60,7 +60,7 @@ func canViewAccount(m model.Repository, callerId string, targetId string) bool {
 
 // canManageAccount returns true when the caller may change or delete the target account:
 // it is the caller itself or a child account created by the caller.
-func canManageAccount(m model.Repository, callerId string, targetId string) bool {
+func canManageAccount(m repo.Repository, callerId string, targetId string) bool {
 	if !utils.IsValidUUID(targetId) {
 		return false
 	}
@@ -78,7 +78,7 @@ func denyAccess(w http.ResponseWriter) {
 
 // invoiceBelongsToCaller returns true when the invoice belongs to one of the stores
 // of the caller's tenant (the model has no lookup of invoice by id).
-func invoiceBelongsToCaller(m model.Repository, callerId string, invoiceId string) bool {
+func invoiceBelongsToCaller(m repo.Repository, callerId string, invoiceId string) bool {
 	if !utils.IsValidUUID(invoiceId) {
 		return false
 	}
@@ -94,7 +94,7 @@ func invoiceBelongsToCaller(m model.Repository, callerId string, invoiceId strin
 }
 
 // supplierStore returns id of the store the supplier belongs to.
-func supplierStore(m model.Repository, supplierId string) string {
+func supplierStore(m repo.Repository, supplierId string) string {
 	if !utils.IsValidUUID(supplierId) {
 		return ""
 	}

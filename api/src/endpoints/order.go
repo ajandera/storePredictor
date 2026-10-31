@@ -3,6 +3,7 @@ package endpoints
 import (
 	"encoding/json"
 	"log"
+	"main/repo"
 	o "main/structs/order"
 	"main/utils"
 	"net/http"
@@ -10,7 +11,6 @@ import (
 	"strconv"
 	"time"
 
-	model "github.com/ajandera/sp_model"
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/mux"
 	_ "github.com/rabbitmq/amqp091-go"
@@ -27,7 +27,7 @@ import (
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /order  [post]
-func AddOrder(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func AddOrder(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -75,7 +75,7 @@ func AddOrder(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /account/order/{accountId}/{storeId}  [post]
-func AccountOrder(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func AccountOrder(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -124,7 +124,7 @@ func AccountOrder(w http.ResponseWriter, r *http.Request, m model.Repository) {
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /prediction/onetime/{orderId}  [post]
-func OnetimePrediction(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func OnetimePrediction(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -201,7 +201,7 @@ func OnetimePrediction(w http.ResponseWriter, r *http.Request, m model.Repositor
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /orders/{storeId}/{limit}/{offset}  [get]
-func GetClientOrders(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetClientOrders(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -239,7 +239,7 @@ func GetClientOrders(w http.ResponseWriter, r *http.Request, m model.Repository)
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /orders/product/{storeId}/{productCode}  [get]
-func GetOrdersForProduct(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func GetOrdersForProduct(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -274,7 +274,7 @@ func GetOrdersForProduct(w http.ResponseWriter, r *http.Request, m model.Reposit
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /prediction/manual/{storeId}/{date}  [post]
-func ManualPrediction(w http.ResponseWriter, r *http.Request, m model.Repository, publisher *rabbitmq.Publisher) {
+func ManualPrediction(w http.ResponseWriter, r *http.Request, m repo.Repository, publisher *rabbitmq.Publisher) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
@@ -342,7 +342,7 @@ func ManualPrediction(w http.ResponseWriter, r *http.Request, m model.Repository
 // @Produce  json
 // @Success 200 {object} utils.Res
 // @Router /upgrade/{accountId}  [post]
-func UpgradeOrder(w http.ResponseWriter, r *http.Request, m model.Repository) {
+func UpgradeOrder(w http.ResponseWriter, r *http.Request, m repo.Repository) {
 	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
